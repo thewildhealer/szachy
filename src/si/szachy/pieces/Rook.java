@@ -8,6 +8,8 @@ import java.awt.*;
 public class Rook extends Piece {
     public Rook(Chessboard board, Coordinate coord, int owner) {
         super(board, coord, owner);
+        name = "rook";
+        setImage();
     }
 
     @Override
@@ -17,8 +19,4 @@ public class Rook extends Piece {
         return (x == this.getX() || y  == this.getY());
     }
 
-    @Override
-    public Color getColor() {
-        return Color.blue;
-    }
 }

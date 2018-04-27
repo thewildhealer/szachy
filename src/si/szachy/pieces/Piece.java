@@ -9,7 +9,12 @@ abstract public class Piece {
     protected Chessboard board;
     protected Coordinate coord;
     protected int owner;
-    private Color c;
+    protected Image image;
+    protected String name;
+
+    public Image getImage() {
+        return image;
+    }
 
     public Coordinate getCoord() {
         return coord;
@@ -28,6 +33,12 @@ abstract public class Piece {
         this.board = b;
         this.coord = c;
         this.owner = o;
+    }
+    protected void setImage() {
+        Toolkit t=Toolkit.getDefaultToolkit();
+        String path = "./src/si/szachy/images/";
+        path = path + name + owner + ".png";
+        image=t.getImage(path);
     }
     abstract protected boolean pieceMovement(int x, int y);
     public boolean isValidMove(int x, int y) {
@@ -48,7 +59,6 @@ abstract public class Piece {
             if(board.peek(x,y) != null && board.peek(x,y).getOwner() == getOwner()) return false;
             return (xTemp==x && yTemp==y);
         }
-    abstract public Color getColor();
     public int getOwner() {
         return owner;
     }

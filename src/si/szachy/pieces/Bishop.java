@@ -8,6 +8,8 @@ import java.awt.*;
 public class Bishop extends Piece {
     public Bishop(Chessboard board, Coordinate coord, int owner) {
         super(board, coord, owner);
+        name = "bishop";
+        setImage();
     }
 
     @Override
@@ -15,10 +17,5 @@ public class Bishop extends Piece {
         if (!coord.isValid(x, y)) return false;
         if (x == this.getX() && this.getY() == y) return false;
         return Math.abs(x - this.getX()) == Math.abs(y - this.getY());
-    }
-
-    @Override
-    public Color getColor() {
-        return Color.cyan;
     }
 }

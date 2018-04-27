@@ -8,6 +8,8 @@ import java.awt.*;
 public class Knight extends Piece {
     public Knight(Chessboard board, Coordinate coord, int owner) {
         super(board, coord, owner);
+        name = "knight";
+        setImage();
     }
 
     @Override
@@ -33,10 +35,5 @@ public class Knight extends Piece {
     public boolean isValidMove(int x, int y) {
         if(board.peek(x,y) != null && board.peek(x,y).getOwner() == getOwner()) return false;
         return pieceMovement(x, y);
-    }
-
-    @Override
-    public Color getColor() {
-        return Color.orange;
     }
 }

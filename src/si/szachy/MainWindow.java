@@ -19,8 +19,10 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private JButton calopalenieButton;
     private Chessboard board;
     private int width = 8, height = 8;
-    private int rectSize = 50;
-    private Color chessboardColor = Color.black;
+        private int rectSize = 50;
+    private Color chessboardColor = new Color(0xd18b47);
+    private Color chessboardSecondaryColor = new Color(0xffce9e);
+
     Piece selectedPiece;
     boolean isSelected;
     Timer t = new Timer(5, this);
@@ -29,20 +31,29 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         super("Konrad Zawora 165115");
         setContentPane(panelMain);
         this.board = new Chessboard(width, height);
+        // player 1
+        for(int i = 0 ; i < 8; i++)
+            board.addPiece(new Pawn(board, new Coordinate(i,1), 1));
+        board.addPiece(new Rook(board, new Coordinate(0,0), 1));
+        board.addPiece(new Rook(board, new Coordinate(7,0), 1));
+        board.addPiece(new Knight(board, new Coordinate(1,0), 1));
+        board.addPiece(new Knight(board, new Coordinate(6,0), 1));
+        board.addPiece(new Bishop(board, new Coordinate(2,0), 1));
+        board.addPiece(new Bishop(board, new Coordinate(5,0), 1));
+        board.addPiece(new Queen(board, new Coordinate(3,0), 1));
+        board.addPiece(new King(board, new Coordinate(4,0), 1));
+
         // player 0
         for(int i = 0 ; i < 8; i++)
-            board.addPiece(new Pawn(board, new Coordinate(i,1), 0));
-        board.addPiece(new Rook(board, new Coordinate(0,0), 0));
-        board.addPiece(new Rook(board, new Coordinate(7,0), 0));
-        board.addPiece(new Knight(board, new Coordinate(1,0), 0));
-        board.addPiece(new Knight(board, new Coordinate(6,0), 0));
-        board.addPiece(new Bishop(board, new Coordinate(2,0), 0));
-        board.addPiece(new Bishop(board, new Coordinate(5,0), 0));
-        board.addPiece(new Queen(board, new Coordinate(3,0), 0));
-        board.addPiece(new King(board, new Coordinate(4,0), 0));
-
-        // player 1
-        // ...
+            board.addPiece(new Pawn(board, new Coordinate(i,6), 0));
+        board.addPiece(new Rook(board, new Coordinate(0,7), 0));
+        board.addPiece(new Rook(board, new Coordinate(7,7), 0));
+        board.addPiece(new Knight(board, new Coordinate(1,7), 0));
+        board.addPiece(new Knight(board, new Coordinate(6,7), 0));
+        board.addPiece(new Bishop(board, new Coordinate(2,7), 0));
+        board.addPiece(new Bishop(board, new Coordinate(5,7), 0));
+        board.addPiece(new Queen(board, new Coordinate(4,7), 0));
+        board.addPiece(new King(board, new Coordinate(3,7), 0));
 
         Dimension mainDim = new Dimension(width * rectSize + 500, height * rectSize + 50);
         Dimension gameDim = new Dimension(width * rectSize, height * rectSize);
@@ -107,16 +118,24 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                      selectedPiece = board.peek(x,y);
                      isSelected = true;
                      Graphics g = gamePanel.getGraphics();
+                    Graphics2D g2d = (Graphics2D) g;
                      g.setColor(Color.green);
                      Piece p = board.peek(x,y);
+                     int thickness = 4;
+                    Stroke oldStroke = g2d.getStroke();
+                    g2d.setStroke(new BasicStroke(thickness));
                      for(int i = 0; i < width; i++) {
                          for(int j = 0; j < height; j++) {
-                             if (p.isValidMove(i,j))
-                                 g.fillRect(i * rectSize, j * rectSize, rectSize, rectSize);
+                             if (p.isValidMove(i,j)) {
+                                 if(board.peek(i,j) != null && board.peek(i,j).getOwner() != selectedPiece.getOwner()) g.setColor(Color.red);
+                                 else g.setColor(Color.green);
+                                 g.drawRect(i * rectSize + thickness/2, j * rectSize + thickness/2, rectSize-thickness, rectSize-thickness);
+                             }
                          }
                      }
                         g.setColor(Color.magenta);
-                        g.drawRect(selectedPiece.getX() * rectSize, selectedPiece.getY() * rectSize, rectSize, rectSize);
+                    g.drawRect(selectedPiece.getX() * rectSize + thickness/2, selectedPiece.getY() * rectSize + thickness/2, rectSize-thickness, rectSize-thickness);
+                    g2d.setStroke(oldStroke);
                 }
                 else {
                     isSelected = false;
@@ -156,7 +175,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         Graphics g = gamePanel.getGraphics();
         int x = gamePanel.getWidth() / 10;
         int y = gamePanel.getHeight() / 10;
-        g.setColor(Color.white);
+        g.setColor(chessboardSecondaryColor);
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
                 g.fillRect(i * rectSize, j * rectSize, rectSize, rectSize);
@@ -181,8 +200,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
                 if (board.peek(i, j) != null) {
-                    g.setColor(board.peek(i, j).getColor());
-                    g.fillRect(i * rectSize, j * rectSize, rectSize, rectSize);
+                 //   g.setColor(board.peek(i, j).getColor());
+                    g.drawImage(board.peek(i,j).getImage(), i*rectSize,j*rectSize,this);
+                //    g.fillRect(i * rectSize, j * rectSize, rectSize, rectSize);
                 }
             }
         }
