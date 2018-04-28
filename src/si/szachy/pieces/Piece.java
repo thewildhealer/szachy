@@ -2,8 +2,8 @@ package si.szachy.pieces;
 
 import si.szachy.Chessboard;
 import si.szachy.Coordinate;
-
 import java.awt.*;
+import java.util.Arrays;
 
 abstract public class Piece {
     protected Chessboard board;
@@ -15,6 +15,9 @@ abstract public class Piece {
 
     public Image getImage() {
         return image;
+    }
+    public void die() {
+        board.removePiece(this);
     }
 
     public Coordinate getCoord() {

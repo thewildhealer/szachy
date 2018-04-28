@@ -109,13 +109,21 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                 int y = e.getY() / rectSize;
                 if(isSelected) {
                     if(selectedPiece.isValidMove(x,y)) {
+                        if(board.peek(x,y) != null && board.peek(x,y).getOwner() != selectedPiece.getOwner()) {
+                            board.peek(x,y).die();
+                        }
                         selectedPiece.setCoord(new Coordinate(x, y));
                         selectedPiece.didMove = true;
                         isSelected = false;
                         selectedPiece = null;
+                        repaint();
+                    }
+                    else {
+                        isSelected = false;
+                        repaint();
                     }
                 }
-                if (board.peek(x,y) != null && isSelected == false) {
+                else if (board.peek(x,y) != null && isSelected == false) {
                      selectedPiece = board.peek(x,y);
                      isSelected = true;
                      Graphics g = gamePanel.getGraphics();

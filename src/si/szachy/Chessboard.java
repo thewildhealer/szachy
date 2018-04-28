@@ -10,6 +10,14 @@ public class Chessboard {
     private int turn = 1;
     private final int width, height;
 
+    public void removePiece(Piece p) {
+        for(Piece p1 : board) {
+            if(p == p1)
+                p1 = null;
+        }
+        pieces.remove(p);
+    }
+
     public int getHeight() {
         return height;
     }
