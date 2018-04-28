@@ -1,6 +1,6 @@
 package si.szachy;
 
-import si.szachy.pieces.*;
+import si.szachy.pieces.Piece;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,38 +15,20 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private JTabbedPane tabbedPane1;
     private int width = 8, height = 8;
     private int rectSize = 50;
+    int turn = 0;
     private Chessboard board;
     Piece selectedPiece;
     boolean isSelected;
-
+    private boolean rotated = false;
+    private JMenuBar menuBar;
+    private JMenu menu;
     public MainWindow() {
         super("Konrad Zawora 165115");
-        setContentPane(panelMain);
-        this.board = new Chessboard(width, height);
-
-        // player 1
-        for (int i = 0; i < 8; i++)
-            board.addPiece(new Pawn(board, new Coordinate(i, 1), 1));
-        board.addPiece(new Rook(board, new Coordinate(0, 0), 1));
-        board.addPiece(new Rook(board, new Coordinate(7, 0), 1));
-        board.addPiece(new Knight(board, new Coordinate(1, 0), 1));
-        board.addPiece(new Knight(board, new Coordinate(6, 0), 1));
-        board.addPiece(new Bishop(board, new Coordinate(2, 0), 1));
-        board.addPiece(new Bishop(board, new Coordinate(5, 0), 1));
-        board.addPiece(new Queen(board, new Coordinate(3, 0), 1));
-        board.addPiece(new King(board, new Coordinate(4, 0), 1));
-
-        // player 0
-        for (int i = 0; i < 8; i++)
-            board.addPiece(new Pawn(board, new Coordinate(i, 6), 0));
-        board.addPiece(new Rook(board, new Coordinate(0, 7), 0));
-        board.addPiece(new Rook(board, new Coordinate(7, 7), 0));
-        board.addPiece(new Knight(board, new Coordinate(1, 7), 0));
-        board.addPiece(new Knight(board, new Coordinate(6, 7), 0));
-        board.addPiece(new Bishop(board, new Coordinate(2, 7), 0));
-        board.addPiece(new Bishop(board, new Coordinate(5, 7), 0));
-        board.addPiece(new Queen(board, new Coordinate(4, 7), 0));
-        board.addPiece(new King(board, new Coordinate(3, 7), 0));
+        setContentPane(gamePanel);
+        menu();
+        setJMenuBar(menuBar);
+        board = new Chessboard(width, height);
+        board.newGame(rotated);
 
         Dimension mainDim = new Dimension(width * rectSize + 500, height * rectSize + 50);
         Dimension gameDim = new Dimension(width * rectSize, height * rectSize);
@@ -88,12 +70,13 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                         selectedPiece.didMove = true;
                         isSelected = false;
                         selectedPiece = null;
+                        toggleTurn();
                         repaint();
                     } else {
                         isSelected = false;
                         repaint();
                     }
-                } else if (board.peek(x, y) != null && isSelected == false) {
+                } else if (board.peek(x, y) != null && isSelected == false && board.peek(x, y).getOwner() == turn) {
                     selectedPiece = board.peek(x, y);
                     isSelected = true;
                     Graphics g = gamePanel.getGraphics();
@@ -124,6 +107,75 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         });
 
         setVisible(true);
+    }
+
+    private void toggleTurn() {
+        turn = turn == 0 ? 1 : 0;
+    }
+
+    // TODO: ogarnac ocb z zaznaczeniami radiobuttonow
+    private void menu() {
+        JMenu submenu;
+        JMenuItem menuItem;
+        JRadioButtonMenuItem rbMenuItem;
+        menuBar = new JMenuBar();
+
+        menu = new JMenu("Game");
+        submenu = new JMenu("New Game");
+        JMenuItem pvp = new JMenuItem("Player vs Player");
+        submenu.add(pvp);
+        pvp.addActionListener(e -> {
+            board.newGame(rotated);
+            turn = 0;
+            repaint();
+        });
+
+        menuItem = new JMenuItem("Player vs AI");
+        submenu.add(menuItem);
+        menu.add(submenu);
+
+        menuItem = new JMenuItem("AI vs AI");
+        submenu.add(menuItem);
+        menu.add(submenu);
+
+        menuBar.add(menu);
+
+        menu = new JMenu("AI Difficulty");
+        ButtonGroup group2 = new ButtonGroup();
+        rbMenuItem = new JRadioButtonMenuItem("Easy");
+        group2.add(rbMenuItem);
+        menu.add(rbMenuItem);
+
+        rbMenuItem = new JRadioButtonMenuItem("Medium");
+        rbMenuItem.setSelected(true);
+        group2.add(rbMenuItem);
+        menu.add(rbMenuItem);
+
+        rbMenuItem = new JRadioButtonMenuItem("Hard");
+        group2.add(rbMenuItem);
+        menu.add(rbMenuItem);
+
+        rbMenuItem = new JRadioButtonMenuItem("Very Hard");
+        group2.add(rbMenuItem);
+        menu.add(rbMenuItem);
+        menuBar.add(menu);
+
+
+        menu = new JMenu("Preferences");
+        ButtonGroup group3 = new ButtonGroup();
+        JRadioButtonMenuItem white = new JRadioButtonMenuItem("White");
+        rbMenuItem.setSelected(true);
+        group3.add(white);
+        menu.add(white);
+        white.addActionListener(e -> rotated = false);
+
+        JRadioButtonMenuItem black = new JRadioButtonMenuItem("Black");
+        group3.add(black);
+        menu.add(black);
+        black.addActionListener(e -> rotated = true);
+        menuBar.add(menu);
+
+
     }
 
     public void actionPerformed(ActionEvent e) {

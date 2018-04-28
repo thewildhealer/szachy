@@ -1,5 +1,6 @@
 package si.szachy;
-import si.szachy.pieces.Piece;
+
+import si.szachy.pieces.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,14 +8,9 @@ import java.util.Collections;
 public class Chessboard {
     private ArrayList<Piece> pieces;
     private Piece[] board;
-    private int turn = 1;
     private final int width, height;
 
     public void removePiece(Piece p) {
-        for(Piece p1 : board) {
-            if(p == p1)
-                p1 = null;
-        }
         pieces.remove(p);
     }
 
@@ -69,7 +65,36 @@ public class Chessboard {
         return board[x + y * width];
     }
 
-    public int getTurn() {
-        return turn;
+    public void newGame(boolean rotated) {
+        pieces.clear();
+        for (int i = 0; i < 8 * 8; i++)
+            board[i] = null;
+
+        int ownerLower = rotated ? 1 : 0;
+        int ownerUpper = rotated ? 0 : 1;
+
+        // player 1
+        for (int i = 0; i < 8; i++)
+            this.addPiece(new Pawn(this, new Coordinate(i, 1), ownerUpper, rotated));
+        this.addPiece(new Rook(this, new Coordinate(0, 0), ownerUpper));
+        this.addPiece(new Rook(this, new Coordinate(7, 0), ownerUpper));
+        this.addPiece(new Knight(this, new Coordinate(1, 0), ownerUpper));
+        this.addPiece(new Knight(this, new Coordinate(6, 0), ownerUpper));
+        this.addPiece(new Bishop(this, new Coordinate(2, 0), ownerUpper));
+        this.addPiece(new Bishop(this, new Coordinate(5, 0), ownerUpper));
+        this.addPiece(new Queen(this, new Coordinate(3, 0), ownerUpper));
+        this.addPiece(new King(this, new Coordinate(4, 0), ownerUpper));
+
+        // player 0
+        for (int i = 0; i < 8; i++)
+            this.addPiece(new Pawn(this, new Coordinate(i, 6), ownerLower, rotated));
+        this.addPiece(new Rook(this, new Coordinate(0, 7), ownerLower));
+        this.addPiece(new Rook(this, new Coordinate(7, 7), ownerLower));
+        this.addPiece(new Knight(this, new Coordinate(1, 7), ownerLower));
+        this.addPiece(new Knight(this, new Coordinate(6, 7), ownerLower));
+        this.addPiece(new Bishop(this, new Coordinate(2, 7), ownerLower));
+        this.addPiece(new Bishop(this, new Coordinate(5, 7), ownerLower));
+        this.addPiece(new Queen(this, new Coordinate(3, 7), ownerLower));
+        this.addPiece(new King(this, new Coordinate(4, 7), ownerLower));
     }
 }

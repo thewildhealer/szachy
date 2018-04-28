@@ -3,8 +3,6 @@ package si.szachy.pieces;
 import si.szachy.Chessboard;
 import si.szachy.Coordinate;
 
-import java.awt.*;
-
 public class King extends Piece {
     public King(Chessboard board, Coordinate coord, int owner) {
         super(board, coord, owner);
@@ -12,6 +10,7 @@ public class King extends Piece {
         setImage();
     }
 
+    // TODO: roszada
     @Override
     protected boolean pieceMovement(int x, int y) {
         if (!coord.isValid(x, y)) return false;
