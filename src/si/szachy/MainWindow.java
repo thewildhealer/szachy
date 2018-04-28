@@ -5,6 +5,7 @@ import si.szachy.pieces.Piece;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private JPanel panelMain;
@@ -66,7 +67,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                         if (board.peek(x, y) != null && board.peek(x, y).getOwner() != selectedPiece.getOwner()) {
                             board.peek(x, y).die();
                         }
-                        selectedPiece.setCoord(new Coordinate(x, y));
+                        selectedPiece.move(x, y);
                         selectedPiece.didMove = true;
                         isSelected = false;
                         selectedPiece = null;
@@ -86,15 +87,14 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                     int thickness = 4;
                     Stroke oldStroke = g2d.getStroke();
                     g2d.setStroke(new BasicStroke(thickness));
-                    for (int i = 0; i < width; i++) {
-                        for (int j = 0; j < height; j++) {
-                            if (p.isValidMove(i, j)) {
-                                if (board.peek(i, j) != null && board.peek(i, j).getOwner() != selectedPiece.getOwner())
-                                    g.setColor(Color.red);
-                                else g.setColor(Color.green);
-                                g.drawRect(i * rectSize + thickness / 2, j * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
-                            }
-                        }
+
+                    ArrayList<Coordinate> validMoves = selectedPiece.getAllValidMoves();
+                    for (Coordinate c : validMoves) {
+                        int i = c.x, j = c.y;
+                        if (board.peek(i, j) != null && board.peek(i, j).getOwner() != selectedPiece.getOwner())
+                            g.setColor(Color.red);
+                        else g.setColor(Color.green);
+                        g.drawRect(i * rectSize + thickness / 2, j * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
                     }
                     g.setColor(Color.magenta);
                     g.drawRect(selectedPiece.getX() * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);

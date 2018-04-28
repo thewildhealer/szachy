@@ -9,6 +9,11 @@ public class Chessboard {
     private ArrayList<Piece> pieces;
     private Piece[] board;
     private final int width, height;
+    public Piece[] kings = new Piece[2];
+
+    public ArrayList<Piece> getPieces() {
+        return pieces;
+    }
 
     public void removePiece(Piece p) {
         pieces.remove(p);
@@ -38,6 +43,8 @@ public class Chessboard {
                 else break;
             }
         }
+        if (p.getName() == "king")
+            kings[p.getOwner()] = p;
 
     }
     public void setField(int x, int y, Piece p) {
