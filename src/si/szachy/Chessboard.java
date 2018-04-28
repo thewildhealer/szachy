@@ -7,7 +7,7 @@ import java.util.Collections;
 public class Chessboard {
     private ArrayList<Piece> pieces;
     private Piece[] board;
-    private int turn;
+    private int turn = 1;
     private final int width, height;
 
     public int getHeight() {

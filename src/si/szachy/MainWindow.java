@@ -110,6 +110,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                 if(isSelected) {
                     if(selectedPiece.isValidMove(x,y)) {
                         selectedPiece.setCoord(new Coordinate(x, y));
+                        selectedPiece.didMove = true;
                         isSelected = false;
                         selectedPiece = null;
                     }

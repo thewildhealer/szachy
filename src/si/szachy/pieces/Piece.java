@@ -11,6 +11,7 @@ abstract public class Piece {
     protected int owner;
     protected Image image;
     protected String name;
+    public boolean didMove = false;
 
     public Image getImage() {
         return image;
