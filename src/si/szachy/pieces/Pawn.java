@@ -19,7 +19,7 @@ public class Pawn extends Piece {
         if (x == this.getX() && this.getY() == y) return false;
         int direction = owner == 0 ? -1 : 1;
         // 2 kroki na poczatek
-        if(didMove == false && (getY() == 1 || getY() == 6) && y == getY()+direction*2) return true;
+        if(didMove == false && (getY() == 1 || getY() == 6) && y == getY()+direction*2 && board.peek(x,y) == null) return true;
         // bicie po skosach
         if (y == (getY() + direction) && board.peek(x,y) != null && board.peek(x,y).getOwner() != owner && (x==getX()-1 || x== getX()+1) && x!=getX()) return true;
         // nie bicie po prostej
