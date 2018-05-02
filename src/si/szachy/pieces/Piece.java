@@ -71,6 +71,7 @@ abstract public class Piece {
 
     // TODO: do poprawy calosc
     // TODO: dodac bicie
+    // test2
     public boolean wouldKingBeInDanger(Coordinate c) {
         Coordinate oldCoord = getCoord();
         boolean test;
