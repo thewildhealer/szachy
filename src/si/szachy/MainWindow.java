@@ -1,5 +1,6 @@
 package si.szachy;
 
+import si.szachy.pieces.King;
 import si.szachy.pieces.Piece;
 
 import javax.swing.*;
@@ -64,6 +65,20 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                 int y = e.getY() / rectSize;
                 if (isSelected) {
                     if (selectedPiece.isValidMove(x, y)) {
+
+                        if(selectedPiece.getClass() == King.class){
+                            if(selectedPiece.getX() - 2 == x){
+                                //left castling
+                                board.peek(0, selectedPiece.getY()).
+                                        move(selectedPiece.getX() - 1, selectedPiece.getY());
+                            }
+                            else if(selectedPiece.getX() + 2 == x){
+                                //right castling
+                                board.peek(width - 1, selectedPiece.getY()).
+                                        move(selectedPiece.getX() + 1, selectedPiece.getY());
+                            }
+                        }
+
                         if (board.peek(x, y) != null && board.peek(x, y).getOwner() != selectedPiece.getOwner()) {
                             board.peek(x, y).die();
                         }
@@ -96,6 +111,18 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                         else g.setColor(Color.green);
                         g.drawRect(i * rectSize + thickness / 2, j * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
                     }
+                    /*
+                    if(selectedPiece.getClass() == King.class){
+                        if(((King)selectedPiece).leftCastling()){
+                            g.setColor(Color.black);
+                            g.drawRect((selectedPiece.getX() - 2) * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
+                        }
+                        if(((King)selectedPiece).rightCastling()){
+                            g.setColor(Color.black);
+                            g.drawRect((selectedPiece.getX() + 2) * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
+                        }
+                    }
+                    */
                     g.setColor(Color.magenta);
                     g.drawRect(selectedPiece.getX() * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
                     g2d.setStroke(oldStroke);
