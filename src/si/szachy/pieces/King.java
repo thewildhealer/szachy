@@ -3,6 +3,8 @@ package si.szachy.pieces;
 import si.szachy.Chessboard;
 import si.szachy.Coordinate;
 
+import java.util.List;
+
 public class King extends Piece {
     public King(Chessboard board, Coordinate coord, int owner) {
         super(board, coord, owner);
@@ -11,11 +13,58 @@ public class King extends Piece {
     }
 
     // TODO: roszada
+    /*
+        The king and the chosen rook are on the player's first rank.
+        Neither the king nor the chosen rook has previously moved.
+        There are no pieces between the king and the chosen rook.
+        The king is not currently in check.
+        The king does not pass through a square that is attacked by an enemy piece.
+        The king does not end up in check. (True of any legal move.)
+     */
+
+    public boolean leftCastling(){
+        if(didMove || isInDanger())
+            return false;
+
+        //to left
+        Coordinate c = this.coord;
+        Piece supposedRook = board.peek(0, c.y);
+        if(supposedRook == null || supposedRook.didMove || supposedRook.getClass() != Rook.class)
+            return false;
+
+        for(int x = c.x - 1; x > 0; x--){
+            if(board.peek(x, c.y) != null)
+                return false;
+        }
+
+        return !wouldKingBeInDanger(new Coordinate(c.x - 2, c.y));
+    }
+
+    public boolean rightCastling(){
+        if(didMove || isInDanger())
+            return false;
+
+        //to right
+        Coordinate c = this.coord;
+        Piece supposedRook = board.peek(board.getWidth() - 1, c.y);
+        if(supposedRook == null || supposedRook.didMove || supposedRook.getClass() != Rook.class)
+            return false;
+
+        for(int x = c.x + 1; x < board.getWidth() - 1; x++){
+            if(board.peek(x, c.y) != null)
+                return false;
+        }
+
+        return !wouldKingBeInDanger(new Coordinate(c.x + 2, c.y));
+    }
+
     @Override
     protected boolean pieceMovement(int x, int y) {
+        if (x == this.getX() - 2 && y == this.getY()) return leftCastling();
+        if (x == this.getX() + 2 && y == this.getY()) return rightCastling();
         if (!coord.isValid(x, y)) return false;
         if (x == this.getX() && this.getY() == y) return false;
-        if (isFieldDangerous(x, y) == true) return false;
+        if (isFieldDangerous(x, y)) return false;
         return x <= getX() + 1 && y <= getY() + 1 && x >= getX() - 1 && y >= getY() - 1;
     }
 }

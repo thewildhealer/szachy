@@ -28,7 +28,7 @@ abstract public class Piece {
 
     public boolean isFieldDangerous(int x, int y) {
         ArrayList<Piece> pieces = board.getPieces();
-        if (name == "king") return false;
+        if (name.equals("king")) return false;
         for (Piece p : pieces) {
             if (p.canReach(x, y))
                 return true;
@@ -73,11 +73,22 @@ abstract public class Piece {
     // TODO: dodac bicie
     public boolean wouldKingBeInDanger(Coordinate c) {
         Coordinate oldCoord = getCoord();
-        this.setCoord(c);
-        board.updateChessboard();
-        boolean test = board.kings[owner].isInDanger();
-        this.setCoord(oldCoord);
-        board.updateChessboard();
+        boolean test;
+        if(board.peek(c) != null && board.peek(c).owner != owner){
+            Piece piece = board.peek(c);
+            board.removePiece(piece);
+            board.updateChessboard();
+            test = board.kings[owner].isInDanger();
+            board.justAddPiece(piece);
+            board.updateChessboard();
+        }
+        else {
+            this.setCoord(c);
+            board.updateChessboard();
+            test = board.kings[owner].isInDanger();
+            this.setCoord(oldCoord);
+            board.updateChessboard();
+        }
         return test;
     }
 

@@ -19,6 +19,11 @@ public class Chessboard {
         pieces.remove(p);
     }
 
+    public void justAddPiece(Piece p)
+    {
+        pieces.add(p);
+    }
+
     public int getHeight() {
         return height;
     }
@@ -34,7 +39,7 @@ public class Chessboard {
     }
 
     public void addPiece(Piece p) {
-        pieces.add(p);
+        justAddPiece(p);
         if (pieces.size() > 1) {
             int i = pieces.size() - 1;
             while (pieces.get(i - 1).getOwner() < pieces.get(i).getOwner()) {
