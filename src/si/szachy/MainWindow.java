@@ -57,6 +57,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         isSelected = false;
+        PlayerAI ai = new PlayerAI(board, 1);
 
         // TODO: refactor tego wielkiego, brzydkiego kodu
         gamePanel.addMouseListener(new MouseAdapter() {
@@ -97,7 +98,8 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                         selectedPiece.didMove = true;
                         isSelected = false;
                         selectedPiece = null;
-                        toggleTurn();
+                        //toggleTurn();
+                        toggleTurnAI(ai);
                         repaint();
                     } else {
                         isSelected = false;
@@ -150,7 +152,12 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private void toggleTurn() {
         turn = turn == 0 ? 1 : 0;
     }
-
+    private void toggleTurnAI(PlayerAI player) {
+        int oldTurn = turn;
+        turn = player.getPlayerTeam();
+        player.performRandomMove();
+        turn = oldTurn;
+    }
     // TODO: ogarnac ocb z zaznaczeniami radiobuttonow
     private void menu() {
         JMenu submenu;

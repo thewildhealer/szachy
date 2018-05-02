@@ -12,6 +12,7 @@ abstract public class Piece {
     protected int owner;
     protected Image image;
     protected String name;
+    public boolean alive = true;
     public boolean didMove = false;
     ArrayList<Coordinate> validMoves;
 
@@ -66,6 +67,7 @@ abstract public class Piece {
     }
 
     public void die() {
+        this.alive = false;
         board.removePiece(this);
     }
 
