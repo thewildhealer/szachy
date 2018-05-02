@@ -3,6 +3,7 @@ package si.szachy;
 import si.szachy.pieces.King;
 import si.szachy.pieces.Pawn;
 import si.szachy.pieces.Piece;
+import si.szachy.pieces.Queen;
 
 import javax.swing.*;
 import java.awt.*;
@@ -81,9 +82,11 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                         }
                         else if(selectedPiece.getClass() == Pawn.class){
                             if(y == board.getWidth() - 1 || y == 0){
-                                // TODO: Promotion
-                                // Show dialog to choose one of them: queen, knight, rook or bishop
-                                // https://en.wikipedia.org/wiki/Promotion_(chess)
+                                //Promotion to queen
+                                Piece queen = new Queen(board, selectedPiece.getCoord(), selectedPiece.getOwner());
+                                board.justAddPiece(queen);
+                                board.removePiece(selectedPiece);
+                                selectedPiece = queen;
                             }
                         }
 
