@@ -1,6 +1,7 @@
 package si.szachy;
 
 import si.szachy.pieces.King;
+import si.szachy.pieces.Pawn;
 import si.szachy.pieces.Piece;
 
 import javax.swing.*;
@@ -76,6 +77,13 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                                 //right castling
                                 board.peek(width - 1, selectedPiece.getY()).
                                         move(selectedPiece.getX() + 1, selectedPiece.getY());
+                            }
+                        }
+                        else if(selectedPiece.getClass() == Pawn.class){
+                            if(y == board.getWidth() - 1 || y == 0){
+                                // TODO: Promotion
+                                // Show dialog to choose one of them: queen, knight, rook or bishop
+                                // https://en.wikipedia.org/wiki/Promotion_(chess)
                             }
                         }
 
