@@ -28,7 +28,7 @@ abstract public class Piece {
 
     public boolean isFieldDangerous(int x, int y) {
         ArrayList<Piece> pieces = board.getPieces();
-        if (name == "king") return false;
+        if (name.equals("king")) return false;
         for (Piece p : pieces) {
             if (p.canReach(x, y))
                 return true;
