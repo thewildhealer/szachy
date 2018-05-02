@@ -11,17 +11,7 @@ public class King extends Piece {
         name = "king";
         setImage();
     }
-
-    // TODO: roszada
-    /*
-        The king and the chosen rook are on the player's first rank.
-        Neither the king nor the chosen rook has previously moved.
-        There are no pieces between the king and the chosen rook.
-        The king is not currently in check.
-        The king does not pass through a square that is attacked by an enemy piece.
-        The king does not end up in check. (True of any legal move.)
-     */
-
+    
     public boolean leftCastling(){
         if(didMove || isInDanger())
             return false;
