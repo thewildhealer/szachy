@@ -84,7 +84,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                             if(y == board.getWidth() - 1 || y == 0){
                                 //Promotion to queen
                                 Piece queen = new Queen(board, selectedPiece.getCoord(), selectedPiece.getOwner());
-                                board.justAddPiece(queen);
+                                board.addPiece(queen);
                                 board.removePiece(selectedPiece);
                                 selectedPiece = queen;
                             }

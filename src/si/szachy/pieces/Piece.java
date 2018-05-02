@@ -96,7 +96,7 @@ abstract public class Piece {
             board.removePiece(piece);
             board.updateChessboard();
             test = board.kings[owner].isInDanger();
-            board.justAddPiece(piece);
+            board.addPiece(piece);
             board.updateChessboard();
         }
         else {
