@@ -11,7 +11,7 @@ public class King extends Piece {
         name = "king";
         setImage();
     }
-    
+
     public boolean leftCastling(){
         if(didMove || isInDanger())
             return false;

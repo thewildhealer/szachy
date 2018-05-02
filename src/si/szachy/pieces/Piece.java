@@ -27,12 +27,28 @@ abstract public class Piece {
     }
 
     public boolean isFieldDangerous(int x, int y) {
+        Coordinate old = coord;
+        this.move(x,y);
+        board.updateChessboard();
         ArrayList<Piece> pieces = board.getPieces();
-        if (name.equals("king")) return false;
         for (Piece p : pieces) {
-            if (p.canReach(x, y))
-                return true;
+            if(p.getClass() != King.class) {
+                if (p.getOwner() != owner && p.canReach(x, y)) {
+                    this.move(old.x, old.y);
+                    board.updateChessboard();
+                    return true;
+                }
+            }
+            else if(p != this && p.owner != owner){
+                if((Math.abs(x - p.getX()) == 1 && Math.abs(y - p.getY()) == 1) || (Math.abs(x - p.getX()) == 0 && Math.abs(y - p.getY()) == 1) || (Math.abs(x - p.getX()) == 1 && Math.abs(y - p.getY()) == 0)) {
+                    this.move(old.x, old.y);
+                    board.updateChessboard();
+                    return true;
+                }
+            }
         }
+        this.move(old.x, old.y);
+        board.updateChessboard();
         return false;
     }
 
