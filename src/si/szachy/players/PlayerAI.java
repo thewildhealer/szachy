@@ -75,7 +75,7 @@ public class PlayerAI extends Player {
             board.setField(c.getX(), c.getY(), p);
             board.setField(prev.x, prev.y, null);
 
-            actualValue = minimax(PlayerAI.DEPTH, playerTeam, -999999.0, 999999.0);
+            actualValue = minimax(PlayerAI.DEPTH, (playerTeam+1)%2, -999999.0, 999999.0);
 
             if(actualValue > bestValue){
                 bestMove = c;
@@ -107,6 +107,7 @@ public class PlayerAI extends Player {
     }
 
     private Double minimax(int depth, int playerTeam, double alfa, double beta){
+        counter++;
         if(depth == 0)
             return evaluateBoard();
 
@@ -133,9 +134,14 @@ public class PlayerAI extends Player {
                         //*******************************************************************
 
                         nextMoveValue = minimax(depth - 1, (playerTeam + 1) % 2, alfa, beta);
-                        bestValue = playerTeam == this.playerTeam ?
-                                (alfa = Math.max(nextMoveValue, alfa)) :
-                                (beta = Math.min(nextMoveValue, beta));
+                        if(playerTeam == this.playerTeam) {
+                            bestValue = Math.max(bestValue, nextMoveValue);
+                            alfa = Math.max(bestValue, alfa);
+                        }
+                        else {
+                            bestValue = Math.min(bestValue, nextMoveValue);
+                            beta = Math.min(bestValue, beta);
+                        }
 
                         p.setCoord(previousCoords);
                         if (at != null) {
@@ -150,7 +156,6 @@ public class PlayerAI extends Player {
                     }
                 }
             }
-            counter++;
             return bestValue;
     }
 
