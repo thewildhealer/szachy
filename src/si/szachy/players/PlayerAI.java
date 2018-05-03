@@ -8,7 +8,7 @@ import si.szachy.pieces.Piece;
 import java.util.List;
 
 public class PlayerAI extends Player {
-    private static int DEPTH = 3;
+    private static int DEPTH = 4;
     public int counter = 0;
 
     public PlayerAI(Chessboard board, int playerTeam) {
@@ -34,7 +34,7 @@ public class PlayerAI extends Player {
         tuple<Coordinate, Double> move;
         Piece toMove = null;
         Coordinate destination = null;
-        Double bestValue = Double.MIN_VALUE;
+        Double bestValue = -Double.MAX_VALUE;
 
         for(Piece p: playerPieces){
             List<Coordinate> possibleMoves = p.getAllValidMoves();
@@ -59,7 +59,7 @@ public class PlayerAI extends Player {
     }
 
     private tuple<Coordinate, Double> findBestMove(Piece p, @NotNull List<Coordinate> possibleMoves){
-        Double bestValue = Double.MIN_VALUE;
+        Double bestValue = -Double.MAX_VALUE;
         Double actualValue = 0.0;
         Coordinate bestMove = possibleMoves.get(0);
 
@@ -75,7 +75,7 @@ public class PlayerAI extends Player {
             board.setField(c.getX(), c.getY(), p);
             board.setField(prev.x, prev.y, null);
 
-            actualValue = minimax(PlayerAI.DEPTH, playerTeam, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            actualValue = minimax(PlayerAI.DEPTH, playerTeam, -Double.MAX_VALUE, Double.MAX_VALUE);
 
             if(actualValue > bestValue){
                 bestMove = c;
@@ -112,7 +112,7 @@ public class PlayerAI extends Player {
 
         tuple<Coordinate, Double> bestMove = null;
         Piece toMove;
-        Double bestValue = this.playerTeam == playerTeam ? Double.MIN_VALUE : Double.MAX_VALUE, nextMoveValue;
+        Double bestValue = this.playerTeam == playerTeam ? -Double.MAX_VALUE : Double.MAX_VALUE, nextMoveValue;
 
             for (Piece p : playerTeam == this.playerTeam ? playerPieces : oppositorPieces) {
                 if(p.isAlive) {
@@ -123,7 +123,6 @@ public class PlayerAI extends Player {
                         Piece at = board.peek(destination);
                         Coordinate previousCoords = p.getCoord();
 
-                        //TODO: remove at, move p at destination
                         if (at != null) {
                             at.die();
                         }
@@ -138,8 +137,6 @@ public class PlayerAI extends Player {
                                 (alfa = Math.max(nextMoveValue, alfa)) :
                                 (beta = Math.min(nextMoveValue, beta));
 
-                        //TODO: restore previous board
-
                         p.setCoord(previousCoords);
                         if (at != null) {
                             at.isAlive = true;
@@ -147,7 +144,6 @@ public class PlayerAI extends Player {
                         }
                         board.setField(destination.getX(), destination.getY(), at);
                         board.setField(p.getX(), p.getY(), p);
-                        //board.updateChessboard();
 
                        if (alfa >= beta)
                            return bestValue;

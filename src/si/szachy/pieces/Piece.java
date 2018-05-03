@@ -7,7 +7,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 abstract public class Piece {
-    private int value;
+    private double value;
     protected double[][] evaluation;
     protected Chessboard board;
     protected Coordinate coord;
@@ -28,15 +28,6 @@ abstract public class Piece {
 
     public String getName() {
         return name;
-    }
-
-    public void reverseEvaluation(){
-        for(int i = 0; i < evaluation.length / 2; i++)
-        {
-            double[] temp = evaluation[i];
-            evaluation[i] = evaluation[evaluation.length - i - 1];
-            evaluation[evaluation.length - i - 1] = temp;
-        }
     }
 
     public boolean isFieldDangerous(int x, int y) {
