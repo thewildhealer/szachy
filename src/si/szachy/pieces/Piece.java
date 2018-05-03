@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 abstract public class Piece {
     private int value;
+    protected double[][] evaluation;
     protected Chessboard board;
     protected Coordinate coord;
     protected int owner;
@@ -27,6 +28,15 @@ abstract public class Piece {
 
     public String getName() {
         return name;
+    }
+
+    public void reverseEvaluation(){
+        for(int i = 0; i < evaluation.length / 2; i++)
+        {
+            double[] temp = evaluation[i];
+            evaluation[i] = evaluation[evaluation.length - i - 1];
+            evaluation[evaluation.length - i - 1] = temp;
+        }
     }
 
     public boolean isFieldDangerous(int x, int y) {
@@ -89,8 +99,8 @@ abstract public class Piece {
         this.coord = c;
     }
 
-    public int getValue(){
-        return value;
+    public double getValue(){
+        return value + evaluation[owner == 1 ? board.getHeight() - coord.x - 1 : coord.x][owner == 1 ? board.getWidth() - coord.y - 1: coord.y];
     }
 
     // TODO: do poprawy calosc

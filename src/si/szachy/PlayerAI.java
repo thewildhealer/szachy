@@ -94,8 +94,6 @@ public class PlayerAI {
             Piece at = board.peek(c);
             Coordinate prev = p.getCoord();
 
-            //TODO: remove piece "at" if (at != null), move piece "p" at c
-
             if(at != null){
                 at.die();
             }
@@ -110,8 +108,6 @@ public class PlayerAI {
                 bestMove = c;
                 bestValue = actualValue;
             }
-
-            //TODO: restore previous board status
 
             p.setCoord(prev);
             if(at != null) {
@@ -180,8 +176,8 @@ public class PlayerAI {
                         board.setField(p.getX(), p.getY(), p);
                         //board.updateChessboard();
 
-                        if (alfa >= beta)
-                            return bestValue;
+                       if (alfa >= beta)
+                           return bestValue;
                     }
                 }
             }
