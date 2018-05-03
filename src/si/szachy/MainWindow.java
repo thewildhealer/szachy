@@ -4,6 +4,8 @@ import si.szachy.pieces.King;
 import si.szachy.pieces.Pawn;
 import si.szachy.pieces.Piece;
 import si.szachy.pieces.Queen;
+import si.szachy.players.PlayerAI;
+import si.szachy.players.PlayerHuman;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,10 +34,23 @@ public class MainWindow extends JFrame {
 
         board = new Chessboard();
         board.newGame(rotated);
+        PlayerHuman human = new PlayerHuman(board, 0);
         PlayerAI ai = new PlayerAI(board, 1);
 
         initializeWindow();
-
+        gamePanel.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                super.mouseMoved(e);
+                if (selectedPiece == null && isSelected == false) {
+                    int x = (e.getX() / rectSize);
+                    int y = (e.getY() / rectSize);
+                    if (board.peek(x, y) != null && board.peek(x, y).getOwner() == 0) { // TODO: ogarnac ten syf z teamami
+                        hoverPiece(board.peek(x, y));
+                    } else hoverPiece(null);
+                }
+            }
+        });
         // TODO: refactor tego wielkiego, brzydkiego kodu
         gamePanel.addMouseListener(new MouseAdapter() {
             @Override
@@ -114,12 +129,15 @@ public class MainWindow extends JFrame {
         repaint();
     }
 
+    private void hoverPiece(Piece p) {
+        gamePanel.setHoveredPiece(p);
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
+    }
     private void selectPiece(Piece p) {
         selectedPiece = p;
         isSelected = true;
         gamePanel.setSelectedPiece(selectedPiece);
         gamePanel.paintImmediately(gamePanel.getVisibleRect());
-
     }
 
     private void toggleTurn() {
@@ -128,6 +146,7 @@ public class MainWindow extends JFrame {
 
     private void toggleTurnAI(PlayerAI player) {
         board.updateChessboard();
+        gamePanel.setHoveredPiece(null);
         gamePanel.paintImmediately(gamePanel.getVisibleRect());
         int oldTurn = turn;
         turn = player.getPlayerTeam();
