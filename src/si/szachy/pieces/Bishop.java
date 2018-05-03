@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class Bishop extends Piece {
     public Bishop(Chessboard board, Coordinate coord, int owner) {
-        super(board, coord, owner);
+        super(board, coord, owner, 30);
         name = "bishop";
         setImage();
     }

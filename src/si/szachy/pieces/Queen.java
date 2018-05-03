@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class Queen extends Piece {
     public Queen(Chessboard board, Coordinate coord, int owner) {
-        super(board, coord, owner);
+        super(board, coord, owner, 90);
         name = "queen";
         setImage();
     }

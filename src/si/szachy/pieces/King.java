@@ -7,7 +7,7 @@ import java.util.List;
 
 public class King extends Piece {
     public King(Chessboard board, Coordinate coord, int owner) {
-        super(board, coord, owner);
+        super(board, coord, owner, 900);
         name = "king";
         setImage();
     }

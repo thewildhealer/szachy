@@ -5,7 +5,7 @@ import si.szachy.Coordinate;
 
 public class Knight extends Piece {
     public Knight(Chessboard board, Coordinate coord, int owner) {
-        super(board, coord, owner);
+        super(board, coord, owner, 30);
         name = "knight";
         setImage();
     }

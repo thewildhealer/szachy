@@ -10,7 +10,7 @@ public class Pawn extends Piece {
     }
 
     public Pawn(Chessboard board, Coordinate coord, int owner, boolean rotated) {
-        super(board, coord, owner);
+        super(board, coord, owner, 10);
         name = "pawn";
         setImage();
         if (rotated) rotation = -1;

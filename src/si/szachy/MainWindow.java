@@ -124,18 +124,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                         else g.setColor(Color.green);
                         g.drawRect(i * rectSize + thickness / 2, j * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
                     }
-                    /*
-                    if(selectedPiece.getClass() == King.class){
-                        if(((King)selectedPiece).leftCastling()){
-                            g.setColor(Color.black);
-                            g.drawRect((selectedPiece.getX() - 2) * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
-                        }
-                        if(((King)selectedPiece).rightCastling()){
-                            g.setColor(Color.black);
-                            g.drawRect((selectedPiece.getX() + 2) * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
-                        }
-                    }
-                    */
+
                     g.setColor(Color.magenta);
                     g.drawRect(selectedPiece.getX() * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
                     g2d.setStroke(oldStroke);

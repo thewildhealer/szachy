@@ -7,6 +7,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 abstract public class Piece {
+    private int value;
     protected Chessboard board;
     protected Coordinate coord;
     protected int owner;
@@ -16,10 +17,11 @@ abstract public class Piece {
     public boolean didMove = false;
     ArrayList<Coordinate> validMoves;
 
-    public Piece(Chessboard b, Coordinate c, int o) {
+    public Piece(Chessboard b, Coordinate c, int o, int value) {
         this.board = b;
         this.coord = c;
         this.owner = o;
+        this.value = value;
         validMoves = new ArrayList<>();
     }
 
@@ -85,6 +87,10 @@ abstract public class Piece {
 
     public void setCoord(Coordinate c) {
         this.coord = c;
+    }
+
+    public int getValue(){
+        return value;
     }
 
     // TODO: do poprawy calosc
