@@ -26,6 +26,12 @@ public class Pawn extends Piece {
         if (rotated) rotation = -1;
 
     }
+
+    public Pawn(Piece other, Chessboard board) {
+        super(other, board);
+        ((Pawn) other).rotation = rotation;
+    }
+
     // TODO: przejrzec to, moga byc tu bugi
     @Override
     protected boolean pieceMovement(int x, int y) {

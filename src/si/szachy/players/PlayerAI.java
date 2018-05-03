@@ -30,23 +30,30 @@ public class PlayerAI extends Player {
         move();
     }
 
-    private void move(){
-        tuple<Coordinate, Double> move;
-        Piece toMove = null;
-        Coordinate destination = null;
-        Double bestValue = -999999.0;
+    tuple<Coordinate, Double> move;
+    Piece toMove = null;
+    Coordinate destination = null;
+    Double bestValue = -999999.0;
 
-        for(Piece p: playerPieces){
-            List<Coordinate> possibleMoves = p.getAllValidMoves();
-            if(!possibleMoves.isEmpty()) {
-                move = findBestMove(p, possibleMoves);
-                if (move.value > bestValue) {
-                    toMove = p;
-                    destination = move.key;
-                    bestValue = move.value;
-                }
+    synchronized private void threadedFind(Piece p) {
+        List<Coordinate> possibleMoves = p.getAllValidMoves();
+        if (!possibleMoves.isEmpty()) {
+            move = findBestMove(p, possibleMoves);
+            if (move.value > bestValue) {
+                toMove = p;
+                destination = move.key;
+                bestValue = move.value;
             }
         }
+    }
+
+    private void move() {
+        move = null;
+        toMove = null;
+        destination = null;
+        bestValue = -999999.0;
+        playerPieces.parallelStream().forEach(p -> threadedFind(p));
+
 
         //To niżej można przerzucić do jakiejś oddzielnej funckji
         counter = 0;
@@ -59,12 +66,13 @@ public class PlayerAI extends Player {
     }
 
     private tuple<Coordinate, Double> findBestMove(Piece p, @NotNull List<Coordinate> possibleMoves){
+        Chessboard cpy = new Chessboard(board);
         Double bestValue = -999999.0;
         Double actualValue = 0.0;
         Coordinate bestMove = possibleMoves.get(0);
 
         for(Coordinate c : possibleMoves){
-            Piece at = board.peek(c);
+            Piece at = cpy.peek(c);
             Coordinate prev = p.getCoord();
 
             if(at != null){
@@ -72,8 +80,8 @@ public class PlayerAI extends Player {
             }
 
             p.setCoord(c);
-            board.setField(c.getX(), c.getY(), p);
-            board.setField(prev.x, prev.y, null);
+            cpy.setField(c.getX(), c.getY(), p);
+            cpy.setField(prev.x, prev.y, null);
 
             actualValue = minimax(PlayerAI.DEPTH, playerTeam, -999999.0, 999999.0);
 
@@ -85,12 +93,11 @@ public class PlayerAI extends Player {
             p.setCoord(prev);
             if(at != null) {
                 at.isAlive = true;
-                board.addPiece(at);
+                cpy.addPiece(at);
             }
-            board.setField(c.getX(), c.getY(), at);
-            board.setField(prev.x, prev.y, p);
+            cpy.setField(c.getX(), c.getY(), at);
+            cpy.setField(prev.x, prev.y, p);
         }
-
         return new tuple<>(bestMove, bestValue);
     }
 

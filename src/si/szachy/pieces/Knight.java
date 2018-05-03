@@ -20,6 +20,10 @@ public class Knight extends Piece {
         setImage();
     }
 
+    public Knight(Piece other, Chessboard board) {
+        super(other, board);
+    }
+
     @Override
     protected boolean pieceMovement(int x, int y) {
         if (!coord.isValid(x, y)) return false;

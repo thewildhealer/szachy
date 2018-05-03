@@ -3,8 +3,6 @@ package si.szachy.pieces;
 import si.szachy.Chessboard;
 import si.szachy.Coordinate;
 
-import java.awt.*;
-
 public class Rook extends Piece {
     public Rook(Chessboard board, Coordinate coord, int owner) {
         super(board, coord, owner, 50);
@@ -21,6 +19,10 @@ public class Rook extends Piece {
                 {  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0}
 };
         setImage();
+    }
+
+    public Rook(Piece other, Chessboard board) {
+        super(other, board);
     }
 
     @Override

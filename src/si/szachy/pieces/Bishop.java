@@ -3,9 +3,6 @@ package si.szachy.pieces;
 import si.szachy.Chessboard;
 import si.szachy.Coordinate;
 
-import java.awt.*;
-import java.sql.Array;
-
 public class Bishop extends Piece {
     public Bishop(Chessboard board, Coordinate coord, int owner) {
         super(board, coord, owner, 30);
@@ -20,6 +17,10 @@ public class Bishop extends Piece {
                 { -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0},
                 { -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0}};
         setImage();
+    }
+
+    public Bishop(Piece other, Chessboard board) {
+        super(other, board);
     }
 
     @Override

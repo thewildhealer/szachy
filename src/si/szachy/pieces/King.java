@@ -3,8 +3,6 @@ package si.szachy.pieces;
 import si.szachy.Chessboard;
 import si.szachy.Coordinate;
 
-import java.util.List;
-
 public class King extends Piece {
     public King(Chessboard board, Coordinate coord, int owner) {
         super(board, coord, owner, 900);
@@ -20,6 +18,10 @@ public class King extends Piece {
                 {  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 }};
 
         setImage();
+    }
+
+    public King(Piece other, Chessboard board) {
+        super(other, board);
     }
 
     public boolean leftCastling(){

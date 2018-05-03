@@ -18,6 +18,19 @@ abstract public class Piece {
     public boolean didMove = false;
     ArrayList<Coordinate> validMoves;
 
+    public Piece(Piece other, Chessboard board) {
+        this.value = other.value;
+        this.evaluation = other.evaluation;
+        this.board = board;
+        this.coord = new Coordinate(other.getX(), other.getY());
+        this.owner = other.owner;
+        this.image = other.image;
+        this.name = other.name;
+        this.isAlive = other.isAlive;
+        this.didMove = other.didMove;
+        this.validMoves = other.validMoves;
+    }
+
     public Piece(Chessboard b, Coordinate c, int o, int value) {
         this.board = b;
         this.coord = c;

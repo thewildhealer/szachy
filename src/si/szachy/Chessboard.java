@@ -2,10 +2,12 @@ package si.szachy;
 
 import si.szachy.pieces.*;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Chessboard {
+public class Chessboard implements Cloneable {
     private ArrayList<Piece> pieces;
     private Piece[] board;
     private final int width = 8, height = 8;
@@ -31,6 +33,31 @@ public class Chessboard {
         initializeChessboard();
     }
 
+    public Chessboard(Chessboard other) {
+        pieces = new ArrayList<>();
+        for (Piece p : other.pieces) {
+            Object cpy = null;
+            try {
+                Class<?> clazz = Class.forName(p.getClass().getName());
+                Constructor<?> constructor = clazz.getConstructor(Piece.class, Chessboard.class);
+                cpy = constructor.newInstance(p, this);
+            } catch (ClassNotFoundException e) {
+            } catch (InstantiationException e) {
+            } catch (IllegalAccessException e) {
+            } catch (NoSuchMethodException e) {
+            } catch (InvocationTargetException e) {
+            } catch (NullPointerException e) {
+            }
+            Piece copy = (Piece) cpy;
+            pieces.add(copy);
+            if (copy.getName().equals("king"))
+                kings[copy.getOwner()] = p;
+
+        }
+        board = new Piece[width * height];
+        updateChessboard();
+    }
+
     public void addPiece(Piece p) {
         pieces.add(p);
         if (pieces.size() > 1) {
@@ -45,6 +72,7 @@ public class Chessboard {
             kings[p.getOwner()] = p;
 
     }
+
     public void setField(int x, int y, Piece p) {
         board[x + y * width] = p;
     }
@@ -59,13 +87,14 @@ public class Chessboard {
     private void initializeChessboard() {
         pieces = new ArrayList<>();
         board = new Piece[width * height];
-        for (int i = 0; i < width* height; i++)
+        for (int i = 0; i < width * height; i++)
             board[i] = null;
     }
 
     public Piece peek(Coordinate c) {
         return peek(c.x, c.y);
     }
+
     public Piece peek(int x, int y) {
         return board[x + y * width];
     }
