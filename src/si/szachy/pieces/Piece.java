@@ -18,13 +18,15 @@ abstract public class Piece {
     public boolean didMove = false;
     ArrayList<Coordinate> validMoves;
 
-    public Piece(Chessboard b, Coordinate c, int o, int value) {
+    public Piece(Chessboard b, Coordinate c, int o, double value) {
         this.board = b;
         this.coord = c;
         this.owner = o;
         this.value = value;
         validMoves = new ArrayList<>();
     }
+
+    public abstract Piece createCopy(Chessboard b);
 
     public String getName() {
         return name;

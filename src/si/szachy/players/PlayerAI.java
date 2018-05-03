@@ -6,23 +6,14 @@ import si.szachy.Coordinate;
 import si.szachy.pieces.Piece;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class PlayerAI extends Player {
-    private static int DEPTH = 1;
+    private static int DEPTH = 4;
     public int counter = 0;
 
     public PlayerAI(Chessboard board, int playerTeam) {
         super(board, playerTeam);
-    }
-
-    private class tuple<K, V>{
-        K key;
-        V value;
-
-        tuple(K key, V value){
-            this.key = key;
-            this.value = value;
-        }
     }
 
     public void performMove() {
@@ -75,7 +66,9 @@ public class PlayerAI extends Player {
             board.setField(c.getX(), c.getY(), p);
             board.setField(prev.x, prev.y, null);
 
-            actualValue = minimax(PlayerAI.DEPTH, (playerTeam+1)%2, -999999.0, 999999.0);
+            MiniMax miniMax = new MiniMax(PlayerAI.DEPTH, (playerTeam+1)%2, playerTeam, board);
+            actualValue = miniMax.call();
+            //actualValue = minimax(PlayerAI.DEPTH, (playerTeam+1)%2, -999999.0, 999999.0);
 
             if(actualValue > bestValue){
                 bestMove = c;
@@ -105,6 +98,7 @@ public class PlayerAI extends Player {
 
         return value;
     }
+
 
     private Double minimax(int depth, int playerTeam, double alfa, double beta){
         counter++;
@@ -156,7 +150,95 @@ public class PlayerAI extends Player {
                     }
                 }
             }
-            return bestValue;
+
+        return bestValue;
     }
 
+}
+
+class tuple<K, V>{
+    K key;
+    V value;
+
+    tuple(K key, V value){
+        this.key = key;
+        this.value = value;
+    }
+}
+
+class MiniMax implements Callable<Double>{
+
+    private Chessboard board;
+    private int depth;
+    private int actualPlayer;
+    private int owner;
+    private static final double alpha = -999999.0;
+    private static final double beta =  999999.0;
+
+    public MiniMax(int depth, int firstPlayer, int owner, Chessboard board){
+        this.depth = depth;
+        this.board = board;
+        actualPlayer = firstPlayer;
+        this.owner = owner;
+    }
+
+
+    @Override
+    public Double call() {
+        return evaluateMoves(depth, alpha, beta, actualPlayer);
+    }
+
+    private double evaluateMoves(int depth, double alpha, double beta, int actualPlayer) {
+        if (depth == 0)
+            return evaluateBoard();
+
+        double minmax = actualPlayer == owner ? MiniMax.alpha : MiniMax.beta;
+
+        for (Piece p : board.getPieces(actualPlayer)) {
+            if (p.isAlive) {
+                for (Coordinate destination : p.getAllValidMoves()) {
+                    Piece opponent = board.peek(destination);
+                    Coordinate previousCoords = p.getCoord();
+
+                    if (opponent != null) opponent.die();
+
+                    p.setCoord(destination);
+                    board.setField(destination.x, destination.y, p);
+                    board.setField(previousCoords.x, previousCoords.y, null);
+
+                    if (actualPlayer == owner) {
+                        minmax = Math.max(minmax, evaluateMoves(depth - 1, alpha, beta, (actualPlayer + 1)%2));
+                        alpha = Math.max(minmax, alpha);
+                    }
+                    else {
+                        minmax = Math.min(minmax, evaluateMoves(depth - 1, alpha, beta, (actualPlayer + 1)%2));
+                        beta = Math.min(minmax, beta);
+                    }
+
+                    p.setCoord(previousCoords);
+
+                    if (opponent != null) board.wake(opponent);
+
+                    board.setField(destination.getX(), destination.getY(), opponent);
+                    board.setField(p.getX(), p.getY(), p);
+
+
+                    if (alpha >= beta)
+                        return minmax;
+                }
+            }
+        }
+        return minmax;
+    }
+
+    private double evaluateBoard(){
+        double value = 0;
+        for(Piece p: board.getPieces()){
+            if(p.getOwner() == owner)
+                value += p.getValue();
+            else
+                value -= p.getValue();
+        }
+        return value;
+    }
 }

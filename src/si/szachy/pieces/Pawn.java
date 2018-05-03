@@ -9,6 +9,11 @@ public class Pawn extends Piece {
         this(board, coord, owner, false);
     }
 
+    @Override
+    public Pawn createCopy(Chessboard b){
+        return new Pawn(b, new Coordinate(coord.x, coord.y), owner);
+    }
+
     public Pawn(Chessboard board, Coordinate coord, int owner, boolean rotated) {
         super(board, coord, owner, 10);
         name = "pawn";

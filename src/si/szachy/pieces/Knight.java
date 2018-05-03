@@ -21,6 +21,11 @@ public class Knight extends Piece {
     }
 
     @Override
+    public Knight createCopy(Chessboard b){
+        return new Knight(b, new Coordinate(coord.x, coord.y), owner);
+    }
+
+    @Override
     protected boolean pieceMovement(int x, int y) {
         if (!coord.isValid(x, y)) return false;
         if (x == this.getX() && this.getY() == y) return false;
