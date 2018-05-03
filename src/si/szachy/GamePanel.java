@@ -64,8 +64,8 @@ public class GamePanel extends JPanel {
 
     public void drawPieceMovement(Graphics g, Piece p) {
         Graphics2D g2d = (Graphics2D) g;
-        g.setColor(Color.green);
         int thickness = 4;
+        boolean isHovered = p == hoveredPiece && p != selectedPiece;
         Stroke oldStroke = g2d.getStroke();
         g2d.setStroke(new BasicStroke(thickness));
 
@@ -73,12 +73,17 @@ public class GamePanel extends JPanel {
         for (Coordinate c : validMoves) {
             int i = c.x, j = c.y;
             if (board.peek(i, j) != null && board.peek(i, j).getOwner() != p.getOwner())
-                g.setColor(Color.red);
-            else g.setColor(Color.green);
+                if (isHovered) g.setColor(Color.white);
+                else g.setColor(Color.red);
+            else {
+                if (isHovered) g.setColor(Color.lightGray);
+                else g.setColor(Color.green);
+            }
             g.drawRect(i * rectSize + thickness / 2, j * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
         }
 
-        g.setColor(Color.magenta);
+        if (isHovered) g.setColor(Color.lightGray);
+        else g.setColor(Color.magenta);
         g.drawRect(p.getX() * rectSize + thickness / 2, p.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
         g2d.setStroke(oldStroke);
     }
