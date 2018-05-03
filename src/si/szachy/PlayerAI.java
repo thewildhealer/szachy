@@ -96,6 +96,14 @@ public class PlayerAI {
 
             //TODO: remove piece "at" if (at != null), move piece "p" at c
 
+            if(at != null){
+                at.die();
+            }
+
+            p.setCoord(c);
+            board.setField(c.getX(), c.getY(), p);
+            board.setField(prev.x, prev.y, null);
+
             actualValue = minimax(PlayerAI.DEPTH, playerTeam, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
             if(actualValue > bestValue){
@@ -104,6 +112,14 @@ public class PlayerAI {
             }
 
             //TODO: restore previous board status
+
+            p.setCoord(prev);
+            if(at != null) {
+                at.isAlive = true;
+                board.addPiece(at);
+            }
+            board.setField(c.getX(), c.getY(), at);
+            board.setField(prev.x, prev.y, p);
         }
 
         return new tuple<>(bestMove, bestValue);
@@ -130,24 +146,43 @@ public class PlayerAI {
         Integer bestValue = this.playerTeam == playerTeam ? Integer.MIN_VALUE : Integer.MAX_VALUE, nextMoveValue;
 
             for (Piece p : playerTeam == this.playerTeam ? playerPieces : oppositorPieces) {
-                List<Coordinate> possibleMoves = p.getAllValidMoves();
+                if(p.isAlive) {
+                    List<Coordinate> possibleMoves = p.getAllValidMoves();
 
-                for (Coordinate destination : possibleMoves) {
+                    for (Coordinate destination : possibleMoves) {
 
-                    Piece at = board.peek(destination);
-                    Coordinate previousCoords = p.getCoord();
+                        Piece at = board.peek(destination);
+                        Coordinate previousCoords = p.getCoord();
 
-                    //TODO: remove at, move p at destination
+                        //TODO: remove at, move p at destination
+                        if (at != null) {
+                            at.die();
+                        }
 
-                    nextMoveValue = minimax(depth - 1, (playerTeam + 1) % 2, alfa, beta);
-                    bestValue = playerTeam == this.playerTeam ?
-                            (alfa = Math.max(nextMoveValue, alfa)) :
-                            (beta = Math.min(nextMoveValue, beta));
+                        p.setCoord(destination);
+                        board.setField(destination.getX(), destination.getY(), p);
+                        board.setField(previousCoords.x, previousCoords.y, null);
+                        //*******************************************************************
 
-                    //TODO: restore previous board
+                        nextMoveValue = minimax(depth - 1, (playerTeam + 1) % 2, alfa, beta);
+                        bestValue = playerTeam == this.playerTeam ?
+                                (alfa = Math.max(nextMoveValue, alfa)) :
+                                (beta = Math.min(nextMoveValue, beta));
 
-                    if(alfa >= beta)
-                      return bestValue;
+                        //TODO: restore previous board
+
+                        p.setCoord(previousCoords);
+                        if (at != null) {
+                            at.isAlive = true;
+                            board.addPiece(at);
+                        }
+                        board.setField(destination.getX(), destination.getY(), at);
+                        board.setField(p.getX(), p.getY(), p);
+                        //board.updateChessboard();
+
+                        if (alfa >= beta)
+                            return bestValue;
+                    }
                 }
             }
             counter++;
