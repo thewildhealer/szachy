@@ -1,17 +1,19 @@
-package si.szachy;
+package si.szachy.player;
 
 import org.jetbrains.annotations.NotNull;
+import si.szachy.Chessboard;
+import si.szachy.Coordinate;
 import si.szachy.pieces.Piece;
 
-import java.util.*;
+import java.util.List;
 
-public class PlayerAI {
-    private ArrayList<Piece> playerPieces = new ArrayList<>();
-    private ArrayList<Piece> oppositorPieces = new ArrayList<>();
-    private Chessboard board;
-    private int playerTeam;
+public class PlayerAI extends Player {
     private static int DEPTH = 4;
     public int counter = 0;
+
+    public PlayerAI(Chessboard board, int playerTeam) {
+        super(board, playerTeam);
+    }
 
     private class tuple<K, V>{
         K key;
@@ -21,35 +23,6 @@ public class PlayerAI {
             this.key = key;
             this.value = value;
         }
-    }
-
-    PlayerAI(Chessboard board, int playerTeam) {
-        this.playerTeam = playerTeam;
-        this.board = board;
-
-        for(Piece p : board.getPieces()) {
-            if(p.getOwner() == playerTeam)
-                playerPieces.add(p);
-            else
-                oppositorPieces.add(p);
-        }
-    }
-
-    private void updateList() {
-        ArrayList<Piece> deadPieces = new ArrayList<>();
-        for(Piece p : playerPieces) {
-            if(!p.isAlive)
-                deadPieces.add(p);
-        }
-
-        for(Piece p : deadPieces)
-            playerPieces.remove(p);
-
-        board.updateChessboard();
-    }
-
-    public int getPlayerTeam() {
-        return playerTeam;
     }
 
     public void performMove() {
@@ -129,7 +102,7 @@ public class PlayerAI {
         Piece toMove;
         Integer bestValue = this.playerTeam == playerTeam ? Integer.MIN_VALUE : Integer.MAX_VALUE, nextMoveValue;
 
-            for (Piece p : playerTeam == this.playerTeam ? playerPieces : oppositorPieces) {
+        for (Piece p : playerTeam == this.playerTeam ? playerPieces : opponentPieces) {
                 List<Coordinate> possibleMoves = p.getAllValidMoves();
 
                 for (Coordinate destination : possibleMoves) {
