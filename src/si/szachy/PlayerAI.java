@@ -91,15 +91,10 @@ public class PlayerAI {
         for(Coordinate c : possibleMoves){
             Piece at = board.peek(c);
             Coordinate prev = p.getCoord();
-            if(at != null) {
-                board.removePiece(at);
-                board.setField(at.getX(), at.getY(), null);
-                //board.updateChessboard();
-            }
 
-            p.move(c.x, c.y);
+            p.setCoord(c);
             board.setField(c.x, c.y, p);
-            //board.updateChessboard();
+            board.setField(prev.x, prev.y, null);
 
             actualValue = minimax(PlayerAI.DEPTH, playerTeam);
 
@@ -108,15 +103,9 @@ public class PlayerAI {
                 bestValue = actualValue;
             }
 
-            p.move(prev.x, prev.y);
+            p.setCoord(prev);
             board.setField(prev.x, prev.y, p);
             board.setField(c.x, c.y, at);
-            //board.updateChessboard();
-
-            if(at != null) {
-                board.addPiece(at);
-                //board.updateChessboard();
-            }
         }
 
         return new tuple<>(bestMove, bestValue);
@@ -150,25 +139,17 @@ public class PlayerAI {
                     Piece at = board.peek(destination);
                     Coordinate previousCoords = p.getCoord();
 
-                    if(at != null) {
-                        board.removePiece(at);
-                        board.updateChessboard();
-                    }
-
-                    p.move(destination.x, destination.y);
-                    board.updateChessboard();
+                    p.setCoord(destination);
+                    board.setField(previousCoords.x, previousCoords.y, null);
+                    board.setField(destination.x, destination.y, p);
 
                     nextMoveValue = minimax(depth - 1, (playerTeam + 1) % 2);
                     bestValue = playerTeam == this.playerTeam ?
                             Math.max(nextMoveValue, bestValue) : Math.min(nextMoveValue, bestValue);
 
-                    p.move(previousCoords.x, previousCoords.y);
-                    board.updateChessboard();
-
-                    if(at != null) {
-                        board.addPiece(at);
-                        board.updateChessboard();
-                    }
+                    p.setCoord(previousCoords);
+                    board.setField(previousCoords.x, previousCoords.y, p);
+                    board.setField(destination.x, destination.y, at);
                 }
             }
             return bestValue;
