@@ -7,57 +7,34 @@ import si.szachy.pieces.Queen;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-public class MainWindow extends JFrame implements ActionListener, KeyListener {
+public class MainWindow extends JFrame {
     private JPanel panelMain;
     private GamePanel gamePanel;
     private JTextArea comments;
     private JButton zapiszButton;
     private JButton wczytajButton;
     private JTabbedPane tabbedPane1;
-    private int width = 8, height = 8;
-    private int rectSize = 50;
+    private final int width = 8, height = 8;
+    private final int rectSize = 50;
     int turn = 0;
     private Chessboard board;
     Piece selectedPiece;
-    boolean isSelected;
+    boolean isSelected = false;
     private boolean rotated = false;
     private JMenuBar menuBar;
     private JMenu menu;
 
     public MainWindow() {
-        super("Konrad Zawora 165115");
-        setContentPane(gamePanel);
-        menu();
-        setJMenuBar(menuBar);
-        board = new Chessboard(width, height);
+        super("SZACHULCE");
+
+        board = new Chessboard();
         board.newGame(rotated);
-
-        Dimension mainDim = new Dimension(width * rectSize + 500, height * rectSize + 50);
-        Dimension gameDim = new Dimension(width * rectSize, height * rectSize);
-        panelMain.setPreferredSize(mainDim);
-        gamePanel.setPreferredSize(gameDim);
-
-        panelMain.setFocusable(false);
-        gamePanel.setFocusable(false);
-        comments.setFocusable(false);
-        zapiszButton.setFocusable(false);
-        wczytajButton.setFocusable(false);
-        tabbedPane1.setFocusable(false);
-
-        gamePanel.setBoard(board);
-        gamePanel.setRectSize(rectSize);
-
-        setResizable(false);
-        pack();
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        addKeyListener(this);
-        setFocusable(true);
-        setFocusTraversalKeysEnabled(false);
-        isSelected = false;
         PlayerAI ai = new PlayerAI(board, 1);
+
+        initializeWindow();
 
         // TODO: refactor tego wielkiego, brzydkiego kodu
         gamePanel.addMouseListener(new MouseAdapter() {
@@ -104,6 +81,29 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                     deselect();
             }
         });
+    }
+
+    private void initializeWindow() {
+        setContentPane(gamePanel);
+        menu();
+        setJMenuBar(menuBar);
+        Dimension mainDim = new Dimension(width * rectSize + 500, height * rectSize + 50);
+        Dimension gameDim = new Dimension(width * rectSize, height * rectSize);
+        panelMain.setPreferredSize(mainDim);
+        gamePanel.setPreferredSize(gameDim);
+        panelMain.setFocusable(false);
+        gamePanel.setFocusable(false);
+        comments.setFocusable(false);
+        zapiszButton.setFocusable(false);
+        wczytajButton.setFocusable(false);
+        tabbedPane1.setFocusable(false);
+        gamePanel.setBoard(board);
+        gamePanel.setRectSize(rectSize);
+        setResizable(false);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+        pack();
         setVisible(true);
     }
 
@@ -204,18 +204,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         menuBar.add(menu);
 
 
-    }
-
-    public void actionPerformed(ActionEvent e) {
-    }
-
-    public void keyPressed(KeyEvent e) {
-    }
-
-    public void keyTyped(KeyEvent e) {
-    }
-
-    public void keyReleased(KeyEvent e) {
     }
 
 }

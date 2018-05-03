@@ -8,7 +8,7 @@ import java.util.Collections;
 public class Chessboard {
     private ArrayList<Piece> pieces;
     private Piece[] board;
-    private final int width, height;
+    private final int width = 8, height = 8;
     public Piece[] kings = new Piece[2];
 
     public ArrayList<Piece> getPieces() {
@@ -27,9 +27,7 @@ public class Chessboard {
         return width;
     }
 
-    public Chessboard(int w, int h) {
-        this.width = w;
-        this.height = h;
+    public Chessboard() {
         initializeChessboard();
     }
 
