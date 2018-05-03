@@ -1,6 +1,8 @@
 package si.szachy;
 
-public class Coordinate {
+import java.io.Serializable;
+
+public class Coordinate implements Serializable {
     public final int x, y;
 
     public int getX() {

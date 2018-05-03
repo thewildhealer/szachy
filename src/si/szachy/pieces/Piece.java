@@ -2,20 +2,23 @@ package si.szachy.pieces;
 
 import si.szachy.Chessboard;
 import si.szachy.Coordinate;
+import si.szachy.player.PlayerAI;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-abstract public class Piece {
+abstract public class Piece implements Serializable {
     private int value;
     protected Chessboard board;
     protected Coordinate coord;
     protected int owner;
-    protected Image image;
+    protected PlayerAI playerAI;
     protected String name;
     public boolean isAlive = true;
     public boolean didMove = false;
     ArrayList<Coordinate> validMoves;
+
 
     public Piece(Chessboard b, Coordinate c, int o, int value) {
         this.board = b;
@@ -65,7 +68,11 @@ abstract public class Piece {
     }
 
     public Image getImage() {
-        return image;
+//        return image;
+        Toolkit t = Toolkit.getDefaultToolkit();
+        String path = "./src/si/szachy/images/";
+        path = path + name + owner + ".png";
+        return t.getImage(path);
     }
 
     public void die() {
@@ -121,7 +128,7 @@ abstract public class Piece {
         Toolkit t = Toolkit.getDefaultToolkit();
         String path = "./src/si/szachy/images/";
         path = path + name + owner + ".png";
-        image = t.getImage(path);
+//        image = t.getImage(path);
     }
 
     abstract protected boolean pieceMovement(int x, int y);

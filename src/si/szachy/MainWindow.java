@@ -4,6 +4,9 @@ import si.szachy.pieces.King;
 import si.szachy.pieces.Pawn;
 import si.szachy.pieces.Piece;
 import si.szachy.pieces.Queen;
+import si.szachy.player.Player;
+import si.szachy.player.PlayerAI;
+import si.szachy.player.PlayerHuman;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,11 +30,17 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private JMenuBar menuBar;
     private JMenu menu;
     public MainWindow() {
-        super("Konrad Zawora 165115");
+        super("SZACHULCE");
         setContentPane(gamePanel);
         menu();
         setJMenuBar(menuBar);
-        board = new Chessboard(width, height);
+
+        board = new Chessboard();
+        Player p1, p2;
+        p1 = new PlayerHuman(board, 0);
+        p2 = new PlayerAI(board, 1);
+        board.addPlayer(p1);
+        board.addPlayer(p2);
         board.newGame(rotated);
 
         Dimension mainDim = new Dimension(width * rectSize + 500, height * rectSize + 50);
@@ -45,7 +54,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         zapiszButton.setFocusable(false);
         wczytajButton.setFocusable(false);
         tabbedPane1.setFocusable(false);
-
         gamePanel.setBoard(board);
         gamePanel.setRectSize(rectSize);
 
@@ -57,7 +65,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         isSelected = false;
-        PlayerAI ai = new PlayerAI(board, 1);
 
         // TODO: refactor tego wielkiego, brzydkiego kodu
         gamePanel.addMouseListener(new MouseAdapter() {
@@ -99,7 +106,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                         isSelected = false;
                         selectedPiece = null;
                         //toggleTurn();
-                        toggleTurnAI(ai);
+                        toggleTurnAI((PlayerAI) p2);
                         repaint();
                     } else {
                         isSelected = false;
@@ -146,6 +153,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         turn = player.getPlayerTeam();
         player.performMove();
         turn = oldTurn;
+        board.saveSnapshot();
     }
     // TODO: ogarnac ocb z zaznaczeniami radiobuttonow
     private void menu() {
@@ -156,7 +164,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
         menu = new JMenu("Game");
         submenu = new JMenu("New Game");
-        JMenuItem pvp = new JMenuItem("Player vs Player");
+        JMenuItem pvp = new JMenuItem("si.szachy.player.Player vs si.szachy.player.Player");
         submenu.add(pvp);
         pvp.addActionListener(e -> {
             board.newGame(rotated);
@@ -164,13 +172,22 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             repaint();
         });
 
-        menuItem = new JMenuItem("Player vs AI");
+        menuItem = new JMenuItem("si.szachy.player.Player vs AI");
         submenu.add(menuItem);
         menu.add(submenu);
 
         menuItem = new JMenuItem("AI vs AI");
         submenu.add(menuItem);
         menu.add(submenu);
+
+        JMenuItem undo = new JMenuItem("Undo");
+        menu.add(undo);
+        undo.addActionListener(e -> {
+            board.undo();
+            turn = 0;
+            repaint();
+        });
+
 
         menuBar.add(menu);
 

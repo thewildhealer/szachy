@@ -1,15 +1,19 @@
 package si.szachy;
 
 import si.szachy.pieces.*;
+import si.szachy.player.Player;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Chessboard {
+public class Chessboard implements Serializable {
     private ArrayList<Piece> pieces;
     private Piece[] board;
-    private final int width, height;
+    private final int width = 8, height = 8;
+    private ArrayList<ArrayList<Piece>> snapshots;
     public Piece[] kings = new Piece[2];
+    private Player[] players = new Player[2];
 
     public ArrayList<Piece> getPieces() {
         return pieces;
@@ -27,10 +31,22 @@ public class Chessboard {
         return width;
     }
 
-    public Chessboard(int w, int h) {
-        this.width = w;
-        this.height = h;
+    public Chessboard() {
         initializeChessboard();
+    }
+
+    private static Object deepCopy(Object o) {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ObjectOutputStream outputStrm = new ObjectOutputStream(outputStream);
+            outputStrm.writeObject(o);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            ObjectInputStream objInputStream = new ObjectInputStream(inputStream);
+            return objInputStream.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void addPiece(Piece p) {
@@ -58,18 +74,42 @@ public class Chessboard {
             setField(pieces.get(i).getCoord().getX(), pieces.get(i).getCoord().getY(), pieces.get(i));
     }
 
+    public void addPlayer(Player p) {
+        //       players[p.getPlayerTeam()] = p;
+    }
+
+    public Piece peek(Coordinate c) {
+        return peek(c.x, c.y);
+    }
+
+    public Piece peek(int x, int y) {
+        return board[x + y * width];
+    }
+
     private void initializeChessboard() {
+        snapshots = new ArrayList<>();
         pieces = new ArrayList<>();
         board = new Piece[width * height];
         for (int i = 0; i < width* height; i++)
             board[i] = null;
     }
 
-    public Piece peek(Coordinate c) {
-        return peek(c.x, c.y);
+    public void undo() {
+        if (snapshots.size() < 2) return;
+        snapshots.remove(snapshots.size() - 1);
+        pieces = snapshots.get(snapshots.size() - 1);
+        snapshots.remove(snapshots.size() - 1);
+        updateChessboard();
+        saveSnapshot();
     }
-    public Piece peek(int x, int y) {
-        return board[x + y * width];
+
+    public void saveSnapshot() {
+        ArrayList<Piece> copy = new ArrayList<>();
+        for (Piece p : pieces) {
+            Piece dcpy = (Piece) deepCopy(p);
+            copy.add(dcpy);
+        }
+        snapshots.add(copy);
     }
 
     public void newGame(boolean rotated) {
@@ -103,5 +143,8 @@ public class Chessboard {
         this.addPiece(new Bishop(this, new Coordinate(5, 7), ownerLower));
         this.addPiece(new Queen(this, new Coordinate(3, 7), ownerLower));
         this.addPiece(new King(this, new Coordinate(4, 7), ownerLower));
+
+        saveSnapshot();
+
     }
 }
