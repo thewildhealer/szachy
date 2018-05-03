@@ -10,7 +10,7 @@ public class PlayerAI {
     private ArrayList<Piece> oppositorPieces = new ArrayList<>();
     private Chessboard board;
     private int playerTeam;
-    private static int DEPTH = 3;
+    private static int DEPTH = 2;
 
     private class tuple<K, V>{
         K key;
@@ -93,11 +93,13 @@ public class PlayerAI {
             Coordinate prev = p.getCoord();
             if(at != null) {
                 board.removePiece(at);
-                board.updateChessboard();
+                board.setField(at.getX(), at.getY(), null);
+                //board.updateChessboard();
             }
 
             p.move(c.x, c.y);
-            board.updateChessboard();
+            board.setField(c.x, c.y, p);
+            //board.updateChessboard();
 
             actualValue = minimax(PlayerAI.DEPTH, playerTeam);
 
@@ -107,11 +109,13 @@ public class PlayerAI {
             }
 
             p.move(prev.x, prev.y);
-            board.updateChessboard();
+            board.setField(prev.x, prev.y, p);
+            board.setField(c.x, c.y, at);
+            //board.updateChessboard();
 
             if(at != null) {
                 board.addPiece(at);
-                board.updateChessboard();
+                //board.updateChessboard();
             }
         }
 
