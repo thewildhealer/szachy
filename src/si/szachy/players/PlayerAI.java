@@ -8,7 +8,7 @@ import si.szachy.pieces.Piece;
 import java.util.List;
 
 public class PlayerAI extends Player {
-    private static int DEPTH = 1;
+    private static int DEPTH = 4;
     public int counter = 0;
 
     public PlayerAI(Chessboard board, int playerTeam) {
@@ -145,8 +145,8 @@ public class PlayerAI extends Player {
                         board.setField(destination.getX(), destination.getY(), at);
                         board.setField(p.getX(), p.getY(), p);
 
-                       //if (alfa >= beta)
-                       //    return bestValue;
+                       if (alfa >= beta)
+                           return bestValue;
                     }
                 }
             }
