@@ -91,7 +91,7 @@ abstract public class Piece {
     }
 
     public double getValue(){
-        return value + evaluation[owner == 1 ? board.getHeight() - coord.x - 1 : coord.x][owner == 1 ? board.getWidth() - coord.y - 1: coord.y];
+        return value + (owner == 1 ? evaluation[board.getHeight() - coord.y - 1][board.getWidth() - coord.x - 1] : evaluation[coord.y][ coord.x]);
     }
 
     // TODO: do poprawy calosc

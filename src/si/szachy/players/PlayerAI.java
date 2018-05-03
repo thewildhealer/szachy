@@ -8,7 +8,7 @@ import si.szachy.pieces.Piece;
 import java.util.List;
 
 public class PlayerAI extends Player {
-    private static int DEPTH = 4;
+    private static int DEPTH = 1;
     public int counter = 0;
 
     public PlayerAI(Chessboard board, int playerTeam) {
@@ -34,7 +34,7 @@ public class PlayerAI extends Player {
         tuple<Coordinate, Double> move;
         Piece toMove = null;
         Coordinate destination = null;
-        Double bestValue = -Double.MAX_VALUE;
+        Double bestValue = -999999.0;
 
         for(Piece p: playerPieces){
             List<Coordinate> possibleMoves = p.getAllValidMoves();
@@ -59,7 +59,7 @@ public class PlayerAI extends Player {
     }
 
     private tuple<Coordinate, Double> findBestMove(Piece p, @NotNull List<Coordinate> possibleMoves){
-        Double bestValue = -Double.MAX_VALUE;
+        Double bestValue = -999999.0;
         Double actualValue = 0.0;
         Coordinate bestMove = possibleMoves.get(0);
 
@@ -75,7 +75,7 @@ public class PlayerAI extends Player {
             board.setField(c.getX(), c.getY(), p);
             board.setField(prev.x, prev.y, null);
 
-            actualValue = minimax(PlayerAI.DEPTH, playerTeam, -Double.MAX_VALUE, Double.MAX_VALUE);
+            actualValue = minimax(PlayerAI.DEPTH, playerTeam, -999999.0, 999999.0);
 
             if(actualValue > bestValue){
                 bestMove = c;
@@ -112,7 +112,7 @@ public class PlayerAI extends Player {
 
         tuple<Coordinate, Double> bestMove = null;
         Piece toMove;
-        Double bestValue = this.playerTeam == playerTeam ? -Double.MAX_VALUE : Double.MAX_VALUE, nextMoveValue;
+        Double bestValue = this.playerTeam == playerTeam ? -999999.0 : 999999.0, nextMoveValue;
 
             for (Piece p : playerTeam == this.playerTeam ? playerPieces : oppositorPieces) {
                 if(p.isAlive) {
@@ -145,8 +145,8 @@ public class PlayerAI extends Player {
                         board.setField(destination.getX(), destination.getY(), at);
                         board.setField(p.getX(), p.getY(), p);
 
-                       if (alfa >= beta)
-                           return bestValue;
+                       //if (alfa >= beta)
+                       //    return bestValue;
                     }
                 }
             }
