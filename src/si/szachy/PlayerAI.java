@@ -90,6 +90,7 @@ public class PlayerAI {
             }
         }
 
+        //To niżej można przerzucić do jakiejś oddzielnej funckji
         if(toMove != null) {
             if (board.peek(destination) != null && board.peek(destination).getOwner() != toMove.getOwner()) {
                 board.peek(destination).die();
