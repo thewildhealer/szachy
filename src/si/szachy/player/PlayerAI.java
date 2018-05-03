@@ -24,10 +24,6 @@ public class PlayerAI extends Player {
         }
     }
 
-    public int getPlayerTeam() {
-        return playerTeam;
-    }
-
     public void performMove() {
         updateList();
         move();
@@ -109,27 +105,27 @@ public class PlayerAI extends Player {
         Integer bestValue = this.playerTeam == playerTeam ? Integer.MIN_VALUE : Integer.MAX_VALUE, nextMoveValue;
 
         for (Piece p : playerTeam == this.playerTeam ? playerPieces : opponentPieces) {
-                List<Coordinate> possibleMoves = p.getAllValidMoves();
+            List<Coordinate> possibleMoves = p.getAllValidMoves();
 
-                for (Coordinate destination : possibleMoves) {
+            for (Coordinate destination : possibleMoves) {
 
-                    Piece at = board.peek(destination);
-                    Coordinate previousCoords = p.getCoord();
+                Piece at = board.peek(destination);
+                Coordinate previousCoords = p.getCoord();
 
-                    p.setCoord(destination);
-                    board.setField(previousCoords.x, previousCoords.y, null);
-                    board.setField(destination.x, destination.y, p);
+                p.setCoord(destination);
+                board.setField(previousCoords.x, previousCoords.y, null);
+                board.setField(destination.x, destination.y, p);
 
-                    nextMoveValue = minimax(depth - 1, (playerTeam + 1) % 2);
-                    bestValue = playerTeam == this.playerTeam ?
-                            Math.max(nextMoveValue, bestValue) : Math.min(nextMoveValue, bestValue);
+                nextMoveValue = minimax(depth - 1, (playerTeam + 1) % 2);
+                bestValue = playerTeam == this.playerTeam ?
+                        Math.max(nextMoveValue, bestValue) : Math.min(nextMoveValue, bestValue);
 
-                    p.setCoord(previousCoords);
-                    board.setField(previousCoords.x, previousCoords.y, p);
-                    board.setField(destination.x, destination.y, at);
-                }
+                p.setCoord(previousCoords);
+                board.setField(previousCoords.x, previousCoords.y, p);
+                board.setField(destination.x, destination.y, at);
             }
-            return bestValue;
+        }
+        return bestValue;
     }
 
 }
