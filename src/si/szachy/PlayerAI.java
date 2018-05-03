@@ -1,6 +1,7 @@
 package si.szachy;
 
 import org.jetbrains.annotations.NotNull;
+import org.omg.CORBA.INTERNAL;
 import si.szachy.pieces.Piece;
 
 import java.util.*;
@@ -117,4 +118,64 @@ public class PlayerAI {
     }
 
 
+    private Integer minimax(int depth, int playerTeam){
+        if(depth == 0)
+            return evaluateBoard();
+
+        if(this.playerTeam == playerTeam){
+
+        }
+
+        return 0;
+    }
+    /*
+    private tuple<Coordinate, Integer> minimax(int depth, int playerTeam){
+        if(depth == 0)
+            return new tuple<>(null, evaluateBoard());
+
+        tuple<Coordinate, Integer> move = null, nextMove = null, bestMove = null;
+        Piece toMove = null;
+        Coordinate destination = null;
+        Integer bestValue = Integer.MIN_VALUE;
+        Integer actualValue;
+
+        if(this.playerTeam == playerTeam){
+            //Firstly find the best move for each piece
+            for(Piece p: playerPieces){
+                List<Coordinate> possibleMoves = p.getAllValidMoves();
+                if(!possibleMoves.isEmpty()) {
+
+                    //find the best move for p piece
+                    move = findBestMove(possibleMoves);
+                    if (move.value > bestValue) {
+                        toMove = p;
+                        destination = move.key;
+                        bestValue = move.value;
+                    }
+
+                    //make move
+                    Piece at = board.peek(move.key);
+                    if(at != null) {
+                        board.removePiece(at);
+                        board.updateChessboard();
+                    }
+
+                    //go deeper
+
+                    nextMove = minimax(depth-1, (playerTeam+1)%2);
+
+                    //undo move
+
+                    if(at != null) {
+                        board.addPiece(at);
+                        board.updateChessboard();
+                    }
+                }
+            }
+        }
+        else{
+
+        }
+    }
+    */
 }
