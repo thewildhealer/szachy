@@ -8,7 +8,6 @@ import si.szachy.pieces.Queen;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 
 public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private JPanel panelMain;
@@ -26,6 +25,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private boolean rotated = false;
     private JMenuBar menuBar;
     private JMenu menu;
+
     public MainWindow() {
         super("Konrad Zawora 165115");
         setContentPane(gamePanel);
@@ -69,20 +69,18 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                 if (isSelected) {
                     if (selectedPiece.isValidMove(x, y)) {
 
-                        if(selectedPiece.getClass() == King.class){
-                            if(selectedPiece.getX() - 2 == x){
+                        if (selectedPiece.getClass() == King.class) {
+                            if (selectedPiece.getX() - 2 == x) {
                                 //left castling
                                 board.peek(0, selectedPiece.getY()).
                                         move(selectedPiece.getX() - 1, selectedPiece.getY());
-                            }
-                            else if(selectedPiece.getX() + 2 == x){
+                            } else if (selectedPiece.getX() + 2 == x) {
                                 //right castling
                                 board.peek(width - 1, selectedPiece.getY()).
                                         move(selectedPiece.getX() + 1, selectedPiece.getY());
                             }
-                        }
-                        else if(selectedPiece.getClass() == Pawn.class){
-                            if(y == board.getWidth() - 1 || y == 0){
+                        } else if (selectedPiece.getClass() == Pawn.class) {
+                            if (y == board.getWidth() - 1 || y == 0) {
                                 //Promotion to queen
                                 Piece queen = new Queen(board, selectedPiece.getCoord(), selectedPiece.getOwner());
                                 board.addPiece(queen);
@@ -96,57 +94,53 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                         }
                         selectedPiece.move(x, y);
                         selectedPiece.didMove = true;
-                        isSelected = false;
-                        selectedPiece = null;
-                        //toggleTurn();
+                        deselect();
                         toggleTurnAI(ai);
-                        repaint();
-                    } else {
-                        isSelected = false;
-                        repaint();
-                    }
-                } else if (board.peek(x, y) != null && !isSelected && board.peek(x, y).getOwner() == turn) {
-                    selectedPiece = board.peek(x, y);
-                    isSelected = true;
-                    Graphics g = gamePanel.getGraphics();
-                    Graphics2D g2d = (Graphics2D) g;
-                    g.setColor(Color.green);
-                    Piece p = board.peek(x, y);
-                    int thickness = 4;
-                    Stroke oldStroke = g2d.getStroke();
-                    g2d.setStroke(new BasicStroke(thickness));
-
-                    ArrayList<Coordinate> validMoves = selectedPiece.getAllValidMoves();
-                    for (Coordinate c : validMoves) {
-                        int i = c.x, j = c.y;
-                        if (board.peek(i, j) != null && board.peek(i, j).getOwner() != selectedPiece.getOwner())
-                            g.setColor(Color.red);
-                        else g.setColor(Color.green);
-                        g.drawRect(i * rectSize + thickness / 2, j * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
-                    }
-
-                    g.setColor(Color.magenta);
-                    g.drawRect(selectedPiece.getX() * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
-                    g2d.setStroke(oldStroke);
-                } else {
-                    isSelected = false;
-                    repaint();
-                }
+                    } else
+                        deselect();
+                } else if (board.peek(x, y) != null && !isSelected && board.peek(x, y).getOwner() == turn)
+                    selectPiece(board.peek(x, y));
+                else
+                    deselect();
             }
         });
-
         setVisible(true);
+    }
+
+    private void deselect() {
+        isSelected = false;
+        selectedPiece = null;
+        gamePanel.setSelectedPiece(null);
+        repaint();
+    }
+
+    private void selectPiece(Piece p) {
+        selectedPiece = p;
+        isSelected = true;
+        gamePanel.setSelectedPiece(selectedPiece);
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
+
     }
 
     private void toggleTurn() {
         turn = turn == 0 ? 1 : 0;
     }
+
     private void toggleTurnAI(PlayerAI player) {
+        board.updateChessboard();
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
         int oldTurn = turn;
         turn = player.getPlayerTeam();
-        player.performMove();
+        Thread aiJob = new Thread(player::performMove);
+        aiJob.start();
+        try {
+            aiJob.join();
+        } catch (InterruptedException e) {
+        }
         turn = oldTurn;
+
     }
+
     // TODO: ogarnac ocb z zaznaczeniami radiobuttonow
     private void menu() {
         JMenu submenu;

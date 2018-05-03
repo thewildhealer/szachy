@@ -1,10 +1,14 @@
 package si.szachy;
 
+import si.szachy.pieces.Piece;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class GamePanel extends JPanel {
     private Chessboard board;
+    private Piece selectedPiece;
     private int rectSize;
     private Color chessboardColor = new Color(0xd18b47);
     private Color chessboardSecondaryColor = new Color(0xffce9e);
@@ -49,6 +53,31 @@ public class GamePanel extends JPanel {
         }
     }
 
+    public void setSelectedPiece(Piece p) {
+        this.selectedPiece = p;
+    }
+
+    public void drawPieceMovement(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g.setColor(Color.green);
+        int thickness = 4;
+        Stroke oldStroke = g2d.getStroke();
+        g2d.setStroke(new BasicStroke(thickness));
+
+        ArrayList<Coordinate> validMoves = selectedPiece.getAllValidMoves();
+        for (Coordinate c : validMoves) {
+            int i = c.x, j = c.y;
+            if (board.peek(i, j) != null && board.peek(i, j).getOwner() != selectedPiece.getOwner())
+                g.setColor(Color.red);
+            else g.setColor(Color.green);
+            g.drawRect(i * rectSize + thickness / 2, j * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
+        }
+
+        g.setColor(Color.magenta);
+        g.drawRect(selectedPiece.getX() * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
+        g2d.setStroke(oldStroke);
+    }
+
     private void update(Chessboard board, Graphics g) {
         int x = board.getWidth();
         int y = board.getHeight();
@@ -60,6 +89,7 @@ public class GamePanel extends JPanel {
                 }
             }
         }
+        if (selectedPiece != null) drawPieceMovement(g);
 
     }
 
