@@ -105,7 +105,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                         isSelected = false;
                         repaint();
                     }
-                } else if (board.peek(x, y) != null && isSelected == false && board.peek(x, y).getOwner() == turn) {
+                } else if (board.peek(x, y) != null && !isSelected && board.peek(x, y).getOwner() == turn) {
                     selectedPiece = board.peek(x, y);
                     isSelected = true;
                     Graphics g = gamePanel.getGraphics();

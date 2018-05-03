@@ -7,44 +7,47 @@ import java.util.Random;
 
 // TODO: napisac logike AI
 public class PlayerAI {
-    private ArrayList<Piece> playerPieces;
-    private int playerTeam;
+    private ArrayList<Piece> playerPieces = new ArrayList<>();
     private Chessboard board;
-    PlayerAI(Chessboard b, int team) {
-        playerPieces = new ArrayList<>();
-        playerTeam = team;
-        board = b;
+    private int playerTeam;
+
+    PlayerAI(Chessboard board, int playerTeam) {
+        this.playerTeam = playerTeam;
+        this.board = board;
+
         for(Piece p : board.getPieces()) {
             if(p.getOwner() == playerTeam)
                 playerPieces.add(p);
         }
     }
-    public int getPlayerTeam() {
-        return playerTeam;
-    }
+
     private void updateList() {
         ArrayList<Piece> deadPieces = new ArrayList<>();
         for(Piece p : playerPieces) {
-            if(p.alive == false)
+            if(!p.isAlive)
                 deadPieces.add(p);
         }
+
         for(Piece p : deadPieces)
-            playerPieces.remove(deadPieces);
+            playerPieces.remove(p);
     }
+
+    public int getPlayerTeam() {
+        return playerTeam;
+    }
+
     public void performRandomMove() {
         Piece selectedPiece = null;
         ArrayList<Coordinate> coords = new ArrayList<>();
-        int validMoves = 0;
         updateList();
         int size = playerPieces.size();
         Random generator = new Random();
-        while(validMoves <= 0) {
+        while(coords.isEmpty()) {
             int i = generator.nextInt(size);
             selectedPiece = playerPieces.get(i);
             coords = selectedPiece.getAllValidMoves();
-            validMoves = coords.size();
         }
-        int i = generator.nextInt(validMoves);
+        int i = generator.nextInt(coords.size());
         Coordinate c = coords.get(i);
         if (board.peek(c) != null && board.peek(c).getOwner() != selectedPiece.getOwner()) {
             board.peek(c).die();
