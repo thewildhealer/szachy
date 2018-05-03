@@ -8,6 +8,7 @@ import java.util.*;
 
 public class PlayerAI {
     private ArrayList<Piece> playerPieces = new ArrayList<>();
+    private ArrayList<Piece> oppositorPieces = new ArrayList<>();
     private Chessboard board;
     private int playerTeam;
 
@@ -28,6 +29,8 @@ public class PlayerAI {
         for(Piece p : board.getPieces()) {
             if(p.getOwner() == playerTeam)
                 playerPieces.add(p);
+            else
+                oppositorPieces.add(p);
         }
     }
 
@@ -117,65 +120,27 @@ public class PlayerAI {
         return value;
     }
 
-
     private Integer minimax(int depth, int playerTeam){
         if(depth == 0)
             return evaluateBoard();
 
-        if(this.playerTeam == playerTeam){
+        tuple<Coordinate, Integer> bestMove = null;
+        Piece toMove;
+        Integer bestValue = Integer.MIN_VALUE, nextMoveValue;
 
-        }
-
-        return 0;
-    }
-    /*
-    private tuple<Coordinate, Integer> minimax(int depth, int playerTeam){
-        if(depth == 0)
-            return new tuple<>(null, evaluateBoard());
-
-        tuple<Coordinate, Integer> move = null, nextMove = null, bestMove = null;
-        Piece toMove = null;
-        Coordinate destination = null;
-        Integer bestValue = Integer.MIN_VALUE;
-        Integer actualValue;
-
-        if(this.playerTeam == playerTeam){
-            //Firstly find the best move for each piece
-            for(Piece p: playerPieces){
+            for (Piece p : playerTeam == this.playerTeam ? playerPieces : oppositorPieces) {
                 List<Coordinate> possibleMoves = p.getAllValidMoves();
-                if(!possibleMoves.isEmpty()) {
 
-                    //find the best move for p piece
-                    move = findBestMove(possibleMoves);
-                    if (move.value > bestValue) {
-                        toMove = p;
-                        destination = move.key;
-                        bestValue = move.value;
-                    }
-
-                    //make move
-                    Piece at = board.peek(move.key);
-                    if(at != null) {
-                        board.removePiece(at);
-                        board.updateChessboard();
-                    }
-
-                    //go deeper
-
-                    nextMove = minimax(depth-1, (playerTeam+1)%2);
-
-                    //undo move
-
-                    if(at != null) {
-                        board.addPiece(at);
-                        board.updateChessboard();
-                    }
+                for (Coordinate destination : possibleMoves) {
+                    //TODO: save and undo moves
+                    //p.makeMove(destination);
+                    nextMoveValue = minimax(depth - 1, (playerTeam + 1) % 2);
+                    bestValue = playerTeam == this.playerTeam ?
+                            Math.max(nextMoveValue, bestValue) : Math.min(nextMoveValue, bestValue);
+                    //p.undoMove();
                 }
             }
-        }
-        else{
 
-        }
+            return bestValue;
     }
-    */
 }
