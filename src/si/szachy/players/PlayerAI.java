@@ -8,7 +8,7 @@ import si.szachy.pieces.Piece;
 import java.util.List;
 
 public class PlayerAI extends Player {
-    private static int DEPTH = 4;
+    private static int DEPTH = 3;
     public int counter = 0;
 
     public PlayerAI(Chessboard board, int playerTeam) {
@@ -31,10 +31,10 @@ public class PlayerAI extends Player {
     }
 
     private void move(){
-        tuple<Coordinate, Integer> move;
+        tuple<Coordinate, Double> move;
         Piece toMove = null;
         Coordinate destination = null;
-        Integer bestValue = Integer.MIN_VALUE;
+        Double bestValue = Double.MIN_VALUE;
 
         for(Piece p: playerPieces){
             List<Coordinate> possibleMoves = p.getAllValidMoves();
@@ -58,16 +58,14 @@ public class PlayerAI extends Player {
         }
     }
 
-    private tuple<Coordinate, Integer> findBestMove(Piece p, @NotNull List<Coordinate> possibleMoves){
-        Integer bestValue = Integer.MIN_VALUE;
-        Integer actualValue = 0;
+    private tuple<Coordinate, Double> findBestMove(Piece p, @NotNull List<Coordinate> possibleMoves){
+        Double bestValue = Double.MIN_VALUE;
+        Double actualValue = 0.0;
         Coordinate bestMove = possibleMoves.get(0);
 
         for(Coordinate c : possibleMoves){
             Piece at = board.peek(c);
             Coordinate prev = p.getCoord();
-
-            //TODO: remove piece "at" if (at != null), move piece "p" at c
 
             if(at != null){
                 at.die();
@@ -84,8 +82,6 @@ public class PlayerAI extends Player {
                 bestValue = actualValue;
             }
 
-            //TODO: restore previous board status
-
             p.setCoord(prev);
             if(at != null) {
                 at.isAlive = true;
@@ -98,8 +94,8 @@ public class PlayerAI extends Player {
         return new tuple<>(bestMove, bestValue);
     }
 
-    private int evaluateBoard(){
-        int value = 0;
+    private double evaluateBoard(){
+        double value = 0;
         for(Piece p: board.getPieces()){
             if(p.getOwner() == playerTeam)
                 value += p.getValue();
@@ -110,13 +106,13 @@ public class PlayerAI extends Player {
         return value;
     }
 
-    private Integer minimax(int depth, int playerTeam, int alfa, int beta){
+    private Double minimax(int depth, int playerTeam, double alfa, double beta){
         if(depth == 0)
             return evaluateBoard();
 
-        tuple<Coordinate, Integer> bestMove = null;
+        tuple<Coordinate, Double> bestMove = null;
         Piece toMove;
-        Integer bestValue = this.playerTeam == playerTeam ? Integer.MIN_VALUE : Integer.MAX_VALUE, nextMoveValue;
+        Double bestValue = this.playerTeam == playerTeam ? Double.MIN_VALUE : Double.MAX_VALUE, nextMoveValue;
 
             for (Piece p : playerTeam == this.playerTeam ? playerPieces : oppositorPieces) {
                 if(p.isAlive) {
@@ -153,8 +149,8 @@ public class PlayerAI extends Player {
                         board.setField(p.getX(), p.getY(), p);
                         //board.updateChessboard();
 
-                        if (alfa >= beta)
-                            return bestValue;
+                       if (alfa >= beta)
+                           return bestValue;
                     }
                 }
             }
