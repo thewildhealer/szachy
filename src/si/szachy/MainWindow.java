@@ -144,7 +144,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private void toggleTurnAI(PlayerAI player) {
         int oldTurn = turn;
         turn = player.getPlayerTeam();
-        player.performRandomMove();
+        player.performMove();
         turn = oldTurn;
     }
     // TODO: ogarnac ocb z zaznaczeniami radiobuttonow

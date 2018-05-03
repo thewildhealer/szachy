@@ -5,7 +5,6 @@ import si.szachy.pieces.Piece;
 
 import java.util.*;
 
-// TODO: napisac logike AI
 public class PlayerAI {
     private ArrayList<Piece> playerPieces = new ArrayList<>();
     private Chessboard board;
@@ -48,29 +47,10 @@ public class PlayerAI {
         return playerTeam;
     }
 
-    //Taka nazwa funkcji, bo nie chciało mi się zmieniać czegoś w kodzie poza tą klasą
-    public void performRandomMove() {
+    public void performMove() {
         updateList();
         move();
     }
-    /*public void performRandomMove() {
-        Piece selectedPiece = null;
-        ArrayList<Coordinate> coords = new ArrayList<>();
-        updateList();
-        int size = playerPieces.size();
-        Random generator = new Random();
-        while(coords.isEmpty()) {
-            int i = generator.nextInt(size);
-            selectedPiece = playerPieces.get(i);
-            coords = selectedPiece.getAllValidMoves();
-        }
-        int i = generator.nextInt(coords.size());
-        Coordinate c = coords.get(i);
-        if (board.peek(c) != null && board.peek(c).getOwner() != selectedPiece.getOwner()) {
-            board.peek(c).die();
-        }
-        selectedPiece.setCoord(c);
-    }*/
 
     private void move(){
         tuple<Coordinate, Integer> move;
@@ -81,7 +61,7 @@ public class PlayerAI {
         for(Piece p: playerPieces){
             List<Coordinate> possibleMoves = p.getAllValidMoves();
             if(!possibleMoves.isEmpty()) {
-                move = findBestMove(p, possibleMoves);
+                move = findBestMove(possibleMoves);
                 if (move.value > bestValue) {
                     toMove = p;
                     destination = move.key;
@@ -99,7 +79,7 @@ public class PlayerAI {
         }
     }
 
-    private tuple<Coordinate, Integer> findBestMove(Piece piece, @NotNull List<Coordinate> possibleMoves){
+    private tuple<Coordinate, Integer> findBestMove(@NotNull List<Coordinate> possibleMoves){
         Integer bestValue = Integer.MIN_VALUE;
         Integer actualValue = 0;
         Coordinate bestMove = possibleMoves.get(0);
