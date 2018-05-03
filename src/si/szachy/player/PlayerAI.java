@@ -1,18 +1,17 @@
-package si.szachy.player;
+package si.szachy;
 
 import org.jetbrains.annotations.NotNull;
-import si.szachy.Chessboard;
-import si.szachy.Coordinate;
 import si.szachy.pieces.Piece;
 
-import java.util.List;
+import java.util.*;
 
-public class PlayerAI extends Player {
-    private static int DEPTH = 2;
-
-    public PlayerAI(Chessboard board, int playerTeam) {
-        super(board, playerTeam);
-    }
+public class PlayerAI {
+    private ArrayList<Piece> playerPieces = new ArrayList<>();
+    private ArrayList<Piece> oppositorPieces = new ArrayList<>();
+    private Chessboard board;
+    private int playerTeam;
+    private static int DEPTH = 4;
+    public int counter = 0;
 
     private class tuple<K, V>{
         K key;
@@ -22,6 +21,35 @@ public class PlayerAI extends Player {
             this.key = key;
             this.value = value;
         }
+    }
+
+    PlayerAI(Chessboard board, int playerTeam) {
+        this.playerTeam = playerTeam;
+        this.board = board;
+
+        for(Piece p : board.getPieces()) {
+            if(p.getOwner() == playerTeam)
+                playerPieces.add(p);
+            else
+                oppositorPieces.add(p);
+        }
+    }
+
+    private void updateList() {
+        ArrayList<Piece> deadPieces = new ArrayList<>();
+        for(Piece p : playerPieces) {
+            if(!p.isAlive)
+                deadPieces.add(p);
+        }
+
+        for(Piece p : deadPieces)
+            playerPieces.remove(p);
+
+        board.updateChessboard();
+    }
+
+    public int getPlayerTeam() {
+        return playerTeam;
     }
 
     public void performMove() {
@@ -48,6 +76,7 @@ public class PlayerAI extends Player {
         }
 
         //To niżej można przerzucić do jakiejś oddzielnej funckji
+        counter = 0;
         if(toMove != null) {
             if (board.peek(destination) != null && board.peek(destination).getOwner() != toMove.getOwner()) {
                 board.peek(destination).die();
@@ -65,20 +94,16 @@ public class PlayerAI extends Player {
             Piece at = board.peek(c);
             Coordinate prev = p.getCoord();
 
-            p.setCoord(c);
-            board.setField(c.x, c.y, p);
-            board.setField(prev.x, prev.y, null);
+            //TODO: remove piece "at" if (at != null), move piece "p" at c
 
-            actualValue = minimax(PlayerAI.DEPTH, playerTeam);
+            actualValue = minimax(PlayerAI.DEPTH, playerTeam, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
             if(actualValue > bestValue){
                 bestMove = c;
                 bestValue = actualValue;
             }
 
-            p.setCoord(prev);
-            board.setField(prev.x, prev.y, p);
-            board.setField(c.x, c.y, at);
+            //TODO: restore previous board status
         }
 
         return new tuple<>(bestMove, bestValue);
@@ -96,7 +121,7 @@ public class PlayerAI extends Player {
         return value;
     }
 
-    private Integer minimax(int depth, int playerTeam){
+    private Integer minimax(int depth, int playerTeam, int alfa, int beta){
         if(depth == 0)
             return evaluateBoard();
 
@@ -104,28 +129,29 @@ public class PlayerAI extends Player {
         Piece toMove;
         Integer bestValue = this.playerTeam == playerTeam ? Integer.MIN_VALUE : Integer.MAX_VALUE, nextMoveValue;
 
-        for (Piece p : playerTeam == this.playerTeam ? playerPieces : opponentPieces) {
-            List<Coordinate> possibleMoves = p.getAllValidMoves();
+            for (Piece p : playerTeam == this.playerTeam ? playerPieces : oppositorPieces) {
+                List<Coordinate> possibleMoves = p.getAllValidMoves();
 
-            for (Coordinate destination : possibleMoves) {
+                for (Coordinate destination : possibleMoves) {
 
-                Piece at = board.peek(destination);
-                Coordinate previousCoords = p.getCoord();
+                    Piece at = board.peek(destination);
+                    Coordinate previousCoords = p.getCoord();
 
-                p.setCoord(destination);
-                board.setField(previousCoords.x, previousCoords.y, null);
-                board.setField(destination.x, destination.y, p);
+                    //TODO: remove at, move p at destination
 
-                nextMoveValue = minimax(depth - 1, (playerTeam + 1) % 2);
-                bestValue = playerTeam == this.playerTeam ?
-                        Math.max(nextMoveValue, bestValue) : Math.min(nextMoveValue, bestValue);
+                    nextMoveValue = minimax(depth - 1, (playerTeam + 1) % 2, alfa, beta);
+                    bestValue = playerTeam == this.playerTeam ?
+                            (alfa = Math.max(nextMoveValue, alfa)) :
+                            (beta = Math.min(nextMoveValue, beta));
 
-                p.setCoord(previousCoords);
-                board.setField(previousCoords.x, previousCoords.y, p);
-                board.setField(destination.x, destination.y, at);
+                    //TODO: restore previous board
+
+                    if(alfa >= beta)
+                      return bestValue;
+                }
             }
-        }
-        return bestValue;
+            counter++;
+            return bestValue;
     }
 
 }
