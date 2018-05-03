@@ -77,6 +77,7 @@ public class MainWindow extends JFrame {
                                 Piece queen = new Queen(board, selectedPiece.getCoord(), selectedPiece.getOwner());
                                 board.addPiece(queen);
                                 board.removePiece(selectedPiece);
+                                board.updateChessboard();
                                 selectedPiece = queen;
                             }
                         }

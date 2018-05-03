@@ -8,7 +8,7 @@ import si.szachy.pieces.Piece;
 import java.util.List;
 
 public class PlayerAI extends Player {
-    private static int DEPTH = 4;
+    private static int DEPTH = 1;
     public int counter = 0;
 
     public PlayerAI(Chessboard board, int playerTeam) {
