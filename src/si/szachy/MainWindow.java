@@ -4,6 +4,7 @@ import si.szachy.pieces.King;
 import si.szachy.pieces.Pawn;
 import si.szachy.pieces.Piece;
 import si.szachy.pieces.Queen;
+import si.szachy.players.PlayerAI;
 
 import javax.swing.*;
 import java.awt.*;
