@@ -5,12 +5,15 @@ import si.szachy.Chessboard;
 import si.szachy.Coordinate;
 import si.szachy.pieces.Piece;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class PlayerAI extends Player {
     private static int DEPTH = 4;
-    public int counter = 0;
 
     public PlayerAI(Chessboard board, int playerTeam) {
         super(board, playerTeam);
@@ -22,7 +25,7 @@ public class PlayerAI extends Player {
     }
 
     private void move(){
-        tuple<Coordinate, Double> move;
+        List<triple<Piece, Coordinate, Future<Double>>> moves = new ArrayList<>();
         Piece toMove = null;
         Coordinate destination = null;
         Double bestValue = -999999.0;
@@ -30,17 +33,21 @@ public class PlayerAI extends Player {
         for(Piece p: playerPieces){
             List<Coordinate> possibleMoves = p.getAllValidMoves();
             if(!possibleMoves.isEmpty()) {
-                move = findBestMove(p, possibleMoves);
-                if (move.value > bestValue) {
-                    toMove = p;
-                    destination = move.key;
-                    bestValue = move.value;
-                }
+                moves.addAll(findBestMove(p, possibleMoves));
             }
         }
 
+        for(triple<Piece, Coordinate, Future<Double>> move : moves){
+            try{
+                if(move.ext.get() > bestValue){
+                    bestValue = move.ext.get();
+                    toMove = move.key;
+                    destination = move.value;
+                }
+            } catch (Exception e) {}
+        }
+
         //To niżej można przerzucić do jakiejś oddzielnej funckji
-        counter = 0;
         if(toMove != null) {
             if (board.peek(destination) != null && board.peek(destination).getOwner() != toMove.getOwner()) {
                 board.peek(destination).die();
@@ -49,10 +56,14 @@ public class PlayerAI extends Player {
         }
     }
 
-    private tuple<Coordinate, Double> findBestMove(Piece p, @NotNull List<Coordinate> possibleMoves){
+    private List<triple<Piece, Coordinate, Future<Double>>> findBestMove(Piece p, @NotNull List<Coordinate> possibleMoves){
         Double bestValue = -999999.0;
         Double actualValue = 0.0;
         Coordinate bestMove = possibleMoves.get(0);
+
+        List<triple<Piece, Coordinate, Future<Double>>> valuesForeachMove = new ArrayList<>();
+
+        ExecutorService executorService = Executors.newFixedThreadPool(possibleMoves.size());
 
         for(Coordinate c : possibleMoves){
             Piece at = board.peek(c);
@@ -66,14 +77,13 @@ public class PlayerAI extends Player {
             board.setField(c.getX(), c.getY(), p);
             board.setField(prev.x, prev.y, null);
 
-            MiniMax miniMax = new MiniMax(PlayerAI.DEPTH, (playerTeam+1)%2, playerTeam, board);
-            actualValue = miniMax.call();
-            //actualValue = minimax(PlayerAI.DEPTH, (playerTeam+1)%2, -999999.0, 999999.0);
-
-            if(actualValue > bestValue){
-                bestMove = c;
-                bestValue = actualValue;
+            Chessboard copyBoard = new Chessboard();
+            for(Piece piece : board.getPieces()){
+                copyBoard.addPiece(piece.createCopy(copyBoard));
             }
+            MiniMax miniMax = new MiniMax(PlayerAI.DEPTH, (playerTeam+1)%2, playerTeam, copyBoard);
+            valuesForeachMove.add(new triple<>(p, c, executorService.submit(miniMax)));
+            //actualValue = minimax(PlayerAI.DEPTH, (playerTeam+1)%2, -999999.0, 999999.0);
 
             p.setCoord(prev);
             if(at != null) {
@@ -84,9 +94,9 @@ public class PlayerAI extends Player {
             board.setField(prev.x, prev.y, p);
         }
 
-        return new tuple<>(bestMove, bestValue);
+        return valuesForeachMove;
     }
-
+/*
     private double evaluateBoard(){
         double value = 0;
         for(Piece p: board.getPieces()){
@@ -153,7 +163,7 @@ public class PlayerAI extends Player {
 
         return bestValue;
     }
-
+*/
 }
 
 class tuple<K, V>{
@@ -166,6 +176,17 @@ class tuple<K, V>{
     }
 }
 
+class triple<K, V, E>{
+    K key;
+    V value;
+    E ext;
+    triple(K key, V value, E ext){
+        this.key = key;
+        this.value = value;
+        this.ext = ext;
+    }
+}
+
 class MiniMax implements Callable<Double>{
 
     private Chessboard board;
@@ -175,7 +196,7 @@ class MiniMax implements Callable<Double>{
     private static final double alpha = -999999.0;
     private static final double beta =  999999.0;
 
-    public MiniMax(int depth, int firstPlayer, int owner, Chessboard board){
+    MiniMax(int depth, int firstPlayer, int owner, Chessboard board){
         this.depth = depth;
         this.board = board;
         actualPlayer = firstPlayer;
