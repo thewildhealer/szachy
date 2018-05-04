@@ -5,7 +5,6 @@ import si.szachy.pieces.Pawn;
 import si.szachy.pieces.Piece;
 import si.szachy.pieces.Queen;
 import si.szachy.players.PlayerAI;
-import si.szachy.players.PlayerHuman;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +18,7 @@ public class MainWindow extends JFrame {
     private JButton zapiszButton;
     private JButton wczytajButton;
     private JTabbedPane tabbedPane1;
+    private int gameMode = 1, aiDifficulty = 2;
     private final int width = 8, height = 8;
     private final int rectSize = 50;
     int turn = 0;
@@ -34,8 +34,9 @@ public class MainWindow extends JFrame {
 
         board = new Chessboard();
         board.newGame(rotated);
-        PlayerHuman human = new PlayerHuman(board, 0);
-        PlayerAI ai = new PlayerAI(board, 1);
+        //     PlayerHuman human = new PlayerHuman(board, 0);
+        PlayerAI ai = new PlayerAI(board, aiDifficulty, 1);
+        PlayerAI ai2 = new PlayerAI(board, aiDifficulty, 0);
 
         initializeWindow();
         gamePanel.addMouseMotionListener(new MouseAdapter() {
@@ -56,45 +57,53 @@ public class MainWindow extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                int x = e.getX() / rectSize;
-                int y = e.getY() / rectSize;
-                if (isSelected) {
-                    if (selectedPiece.isValidMove(x, y)) {
+                if (gameMode == 2) {
+                    while (true) {
+                        if (ai2.getMoveCount() == 0 || ai.getMoveCount() == 0) break;
+                        toggleTurnAvA(ai2, ai);
+                    }
+                } else {
+                    int x = e.getX() / rectSize;
+                    int y = e.getY() / rectSize;
+                    if (isSelected) {
+                        if (selectedPiece.isValidMove(x, y)) {
 
-                        if (selectedPiece.getClass() == King.class) {
-                            if (selectedPiece.getX() - 2 == x) {
-                                //left castling
-                                board.peek(0, selectedPiece.getY()).
-                                        move(selectedPiece.getX() - 1, selectedPiece.getY());
-                            } else if (selectedPiece.getX() + 2 == x) {
-                                //right castling
-                                board.peek(width - 1, selectedPiece.getY()).
-                                        move(selectedPiece.getX() + 1, selectedPiece.getY());
+                            if (selectedPiece.getClass() == King.class) {
+                                if (selectedPiece.getX() - 2 == x) {
+                                    //left castling
+                                    board.peek(0, selectedPiece.getY()).
+                                            move(selectedPiece.getX() - 1, selectedPiece.getY());
+                                } else if (selectedPiece.getX() + 2 == x) {
+                                    //right castling
+                                    board.peek(width - 1, selectedPiece.getY()).
+                                            move(selectedPiece.getX() + 1, selectedPiece.getY());
+                                }
+                            } else if (selectedPiece.getClass() == Pawn.class) {
+                                if (y == board.getWidth() - 1 || y == 0) {
+                                    //Promotion to queen
+                                    Piece queen = new Queen(board, selectedPiece.getCoord(), selectedPiece.getOwner());
+                                    board.addPiece(queen);
+                                    board.removePiece(selectedPiece);
+                                    board.updateChessboard();
+                                    selectedPiece = queen;
+                                }
                             }
-                        } else if (selectedPiece.getClass() == Pawn.class) {
-                            if (y == board.getWidth() - 1 || y == 0) {
-                                //Promotion to queen
-                                Piece queen = new Queen(board, selectedPiece.getCoord(), selectedPiece.getOwner());
-                                board.addPiece(queen);
-                                board.removePiece(selectedPiece);
-                                board.updateChessboard();
-                                selectedPiece = queen;
-                            }
-                        }
 
-                        if (board.peek(x, y) != null && board.peek(x, y).getOwner() != selectedPiece.getOwner()) {
-                            board.peek(x, y).die();
-                        }
-                        selectedPiece.move(x, y);
-                        selectedPiece.didMove = true;
+                            if (board.peek(x, y) != null && board.peek(x, y).getOwner() != selectedPiece.getOwner()) {
+                                board.peek(x, y).die();
+                            }
+                            selectedPiece.move(x, y);
+                            selectedPiece.didMove = true;
+                            deselect();
+                            if (gameMode == 1) toggleTurnPvA(ai);
+                            else if (gameMode == 0) toggleTurnPvP();
+                        } else
+                            deselect();
+                    } else if (board.peek(x, y) != null && !isSelected && board.peek(x, y).getOwner() == turn)
+                        selectPiece(board.peek(x, y));
+                    else
                         deselect();
-                        toggleTurnAI(ai);
-                    } else
-                        deselect();
-                } else if (board.peek(x, y) != null && !isSelected && board.peek(x, y).getOwner() == turn)
-                    selectPiece(board.peek(x, y));
-                else
-                    deselect();
+                }
             }
         });
     }
@@ -134,6 +143,7 @@ public class MainWindow extends JFrame {
         gamePanel.setHoveredPiece(p);
         gamePanel.paintImmediately(gamePanel.getVisibleRect());
     }
+
     private void selectPiece(Piece p) {
         selectedPiece = p;
         isSelected = true;
@@ -141,11 +151,24 @@ public class MainWindow extends JFrame {
         gamePanel.paintImmediately(gamePanel.getVisibleRect());
     }
 
-    private void toggleTurn() {
+    private void toggleTurnPvP() {
         turn = turn == 0 ? 1 : 0;
     }
 
-    private void toggleTurnAI(PlayerAI player) {
+    private void toggleTurnAvA(PlayerAI p1, PlayerAI p2) {
+        if (p1.getMoveCount() == 0 || p2.getMoveCount() == 0) return;
+        p1.performMove();
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
+        if (p1.getMoveCount() == 0 || p2.getMoveCount() == 0) return;
+        p2.performMove();
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+    }
+
+    private void toggleTurnPvA(PlayerAI player) {
         board.updateChessboard();
         gamePanel.setHoveredPiece(null);
         gamePanel.paintImmediately(gamePanel.getVisibleRect());
@@ -173,46 +196,67 @@ public class MainWindow extends JFrame {
         JMenuItem pvp = new JMenuItem("Player vs Player");
         submenu.add(pvp);
         pvp.addActionListener(e -> {
+            gameMode = 0;
             board.newGame(rotated);
             turn = 0;
             repaint();
         });
 
-        menuItem = new JMenuItem("Player vs AI");
-        submenu.add(menuItem);
+        JMenuItem pva = new JMenuItem("Player vs AI");
+        submenu.add(pva);
         menu.add(submenu);
+        pva.addActionListener(e -> {
+            gameMode = 1;
+            board.newGame(rotated);
+            turn = 0;
+            repaint();
+        });
 
-        menuItem = new JMenuItem("AI vs AI");
-        submenu.add(menuItem);
+        JMenuItem ava = new JMenuItem("AI vs AI");
+        submenu.add(ava);
         menu.add(submenu);
+        ava.addActionListener(e -> {
+            gameMode = 2;
+            board.newGame(rotated);
+            turn = 0;
+            repaint();
+        });
 
         menuBar.add(menu);
 
         menu = new JMenu("AI Difficulty");
         ButtonGroup group2 = new ButtonGroup();
-        rbMenuItem = new JRadioButtonMenuItem("Easy");
-        group2.add(rbMenuItem);
-        menu.add(rbMenuItem);
+        JRadioButtonMenuItem d1 = new JRadioButtonMenuItem("Easy");
+        group2.add(d1);
+        menu.add(d1);
+        d1.addActionListener(e -> aiDifficulty = 1);
 
-        rbMenuItem = new JRadioButtonMenuItem("Medium");
-        rbMenuItem.setSelected(true);
-        group2.add(rbMenuItem);
-        menu.add(rbMenuItem);
 
-        rbMenuItem = new JRadioButtonMenuItem("Hard");
-        group2.add(rbMenuItem);
-        menu.add(rbMenuItem);
+        JRadioButtonMenuItem d2 = new JRadioButtonMenuItem("Normal");
+        d2.setSelected(true);
+        group2.add(d2);
+        menu.add(d2);
+        d2.addActionListener(e -> aiDifficulty = 2);
 
-        rbMenuItem = new JRadioButtonMenuItem("Very Hard");
-        group2.add(rbMenuItem);
-        menu.add(rbMenuItem);
+
+        JRadioButtonMenuItem d3 = new JRadioButtonMenuItem("Hard");
+        group2.add(d3);
+        menu.add(d3);
+        d3.addActionListener(e -> aiDifficulty = 3);
+
+
+        JRadioButtonMenuItem d4 = new JRadioButtonMenuItem("Very Hard");
+        group2.add(d4);
+        menu.add(d4);
+        d4.addActionListener(e -> aiDifficulty = 4);
+
         menuBar.add(menu);
 
 
         menu = new JMenu("Preferences");
         ButtonGroup group3 = new ButtonGroup();
         JRadioButtonMenuItem white = new JRadioButtonMenuItem("White");
-        rbMenuItem.setSelected(true);
+        white.setSelected(true);
         group3.add(white);
         menu.add(white);
         white.addActionListener(e -> rotated = false);
