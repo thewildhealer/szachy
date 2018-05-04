@@ -46,7 +46,7 @@ public class MainWindow extends JFrame {
                 if (selectedPiece == null && isSelected == false) {
                     int x = (e.getX() / rectSize);
                     int y = (e.getY() / rectSize);
-                    if (board.peek(x, y) != null && board.peek(x, y).getOwner() == 0) { // TODO: ogarnac ten syf z teamami
+                    if (board.peek(x, y) != null && board.peek(x, y).getOwner() == turn) { // TODO: ogarnac ten syf z teamami
                         hoverPiece(board.peek(x, y));
                     } else hoverPiece(null);
                 }
