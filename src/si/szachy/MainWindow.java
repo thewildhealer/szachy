@@ -152,7 +152,9 @@ public class MainWindow extends JFrame {
     }
 
     private void toggleTurnPvP() {
-        turn = turn == 0 ? 1 : 0;
+        board.updateChessboard();
+        gamePanel.setHoveredPiece(null);
+        turn = (turn + 1) % 2;
     }
 
     private void toggleTurnAvA(PlayerAI p1, PlayerAI p2) {
