@@ -1,10 +1,15 @@
 package si.szachy;
 
+import si.szachy.pieces.Piece;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class GamePanel extends JPanel {
     private Chessboard board;
+    private Piece selectedPiece;
+    private Piece hoveredPiece;
     private int rectSize;
     private Color chessboardColor = new Color(0xd18b47);
     private Color chessboardSecondaryColor = new Color(0xffce9e);
@@ -49,6 +54,40 @@ public class GamePanel extends JPanel {
         }
     }
 
+    public void setHoveredPiece(Piece p) {
+        this.hoveredPiece = p;
+    }
+
+    public void setSelectedPiece(Piece p) {
+        this.selectedPiece = p;
+    }
+
+    public void drawPieceMovement(Graphics g, Piece p) {
+        Graphics2D g2d = (Graphics2D) g;
+        int thickness = 4;
+        boolean isHovered = p == hoveredPiece && p != selectedPiece;
+        Stroke oldStroke = g2d.getStroke();
+        g2d.setStroke(new BasicStroke(thickness));
+
+        ArrayList<Coordinate> validMoves = p.getAllValidMoves();
+        for (Coordinate c : validMoves) {
+            int i = c.x, j = c.y;
+            if (board.peek(i, j) != null && board.peek(i, j).getOwner() != p.getOwner())
+                if (isHovered) g.setColor(Color.white);
+                else g.setColor(Color.red);
+            else {
+                if (isHovered) g.setColor(Color.lightGray);
+                else g.setColor(Color.green);
+            }
+            g.drawRect(i * rectSize + thickness / 2, j * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
+        }
+
+        if (isHovered) g.setColor(Color.lightGray);
+        else g.setColor(Color.magenta);
+        g.drawRect(p.getX() * rectSize + thickness / 2, p.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
+        g2d.setStroke(oldStroke);
+    }
+
     private void update(Chessboard board, Graphics g) {
         int x = board.getWidth();
         int y = board.getHeight();
@@ -60,6 +99,9 @@ public class GamePanel extends JPanel {
                 }
             }
         }
+        if (selectedPiece != null) drawPieceMovement(g, selectedPiece);
+        if (hoveredPiece != null && selectedPiece == null) drawPieceMovement(g, hoveredPiece);
+
 
     }
 

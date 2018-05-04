@@ -1,116 +1,189 @@
 package si.szachy;
 
+import si.szachy.pieces.King;
+import si.szachy.pieces.Pawn;
 import si.szachy.pieces.Piece;
+import si.szachy.pieces.Queen;
+import si.szachy.players.PlayerAI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.ArrayList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-public class MainWindow extends JFrame implements ActionListener, KeyListener {
+public class MainWindow extends JFrame {
     private JPanel panelMain;
     private GamePanel gamePanel;
     private JTextArea comments;
     private JButton zapiszButton;
     private JButton wczytajButton;
     private JTabbedPane tabbedPane1;
-    private int width = 8, height = 8;
-    private int rectSize = 50;
+    private int gameMode = 1, aiDifficulty = 2;
+    private final int width = 8, height = 8;
+    private final int rectSize = 50;
     int turn = 0;
     private Chessboard board;
     Piece selectedPiece;
-    boolean isSelected;
+    boolean isSelected = false;
     private boolean rotated = false;
     private JMenuBar menuBar;
     private JMenu menu;
+
     public MainWindow() {
-        super("Konrad Zawora 165115");
+        super("SZACHULCE");
+
+        board = new Chessboard();
+        board.newGame(rotated);
+        //     PlayerHuman human = new PlayerHuman(board, 0);
+        PlayerAI ai = new PlayerAI(board, aiDifficulty, 1);
+        PlayerAI ai2 = new PlayerAI(board, aiDifficulty, 0);
+
+        initializeWindow();
+        gamePanel.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                super.mouseMoved(e);
+                if (selectedPiece == null && isSelected == false) {
+                    int x = (e.getX() / rectSize);
+                    int y = (e.getY() / rectSize);
+                    if (board.peek(x, y) != null && board.peek(x, y).getOwner() == turn) { // TODO: ogarnac ten syf z teamami
+                        hoverPiece(board.peek(x, y));
+                    } else hoverPiece(null);
+                }
+            }
+        });
+        // TODO: refactor tego wielkiego, brzydkiego kodu
+        gamePanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if (gameMode == 2) {
+                    while (true) {
+                        if (ai2.getMoveCount() == 0 || ai.getMoveCount() == 0) break;
+                        toggleTurnAvA(ai2, ai);
+                    }
+                } else {
+                    int x = e.getX() / rectSize;
+                    int y = e.getY() / rectSize;
+                    if (isSelected) {
+                        if (selectedPiece.isValidMove(x, y)) {
+
+                            if (selectedPiece.getClass() == King.class) {
+                                if (selectedPiece.getX() - 2 == x) {
+                                    //left castling
+                                    board.peek(0, selectedPiece.getY()).
+                                            move(selectedPiece.getX() - 1, selectedPiece.getY());
+                                } else if (selectedPiece.getX() + 2 == x) {
+                                    //right castling
+                                    board.peek(width - 1, selectedPiece.getY()).
+                                            move(selectedPiece.getX() + 1, selectedPiece.getY());
+                                }
+                            } else if (selectedPiece.getClass() == Pawn.class) {
+                                if (y == board.getWidth() - 1 || y == 0) {
+                                    //Promotion to queen
+                                    Piece queen = new Queen(board, selectedPiece.getCoord(), selectedPiece.getOwner());
+                                    board.addPiece(queen);
+                                    board.removePiece(selectedPiece);
+                                    board.updateChessboard();
+                                    selectedPiece = queen;
+                                }
+                            }
+
+                            if (board.peek(x, y) != null && board.peek(x, y).getOwner() != selectedPiece.getOwner()) {
+                                board.peek(x, y).die();
+                            }
+                            selectedPiece.move(x, y);
+                            selectedPiece.didMove = true;
+                            deselect();
+                            if (gameMode == 1) toggleTurnPvA(ai);
+                            else if (gameMode == 0) toggleTurnPvP();
+                        } else
+                            deselect();
+                    } else if (board.peek(x, y) != null && !isSelected && board.peek(x, y).getOwner() == turn)
+                        selectPiece(board.peek(x, y));
+                    else
+                        deselect();
+                }
+            }
+        });
+    }
+
+    private void initializeWindow() {
         setContentPane(gamePanel);
         menu();
         setJMenuBar(menuBar);
-        board = new Chessboard(width, height);
-        board.newGame(rotated);
-
         Dimension mainDim = new Dimension(width * rectSize + 500, height * rectSize + 50);
         Dimension gameDim = new Dimension(width * rectSize, height * rectSize);
         panelMain.setPreferredSize(mainDim);
         gamePanel.setPreferredSize(gameDim);
-
         panelMain.setFocusable(false);
         gamePanel.setFocusable(false);
         comments.setFocusable(false);
         zapiszButton.setFocusable(false);
         wczytajButton.setFocusable(false);
         tabbedPane1.setFocusable(false);
-
         gamePanel.setBoard(board);
         gamePanel.setRectSize(rectSize);
-
         setResizable(false);
-        pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
-        isSelected = false;
-
-        // TODO: refactor tego wielkiego, brzydkiego kodu
-        gamePanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                int x = e.getX() / rectSize;
-                int y = e.getY() / rectSize;
-                if (isSelected) {
-                    if (selectedPiece.isValidMove(x, y)) {
-                        if (board.peek(x, y) != null && board.peek(x, y).getOwner() != selectedPiece.getOwner()) {
-                            board.peek(x, y).die();
-                        }
-                        selectedPiece.move(x, y);
-                        selectedPiece.didMove = true;
-                        isSelected = false;
-                        selectedPiece = null;
-                        toggleTurn();
-                        repaint();
-                    } else {
-                        isSelected = false;
-                        repaint();
-                    }
-                } else if (board.peek(x, y) != null && isSelected == false && board.peek(x, y).getOwner() == turn) {
-                    selectedPiece = board.peek(x, y);
-                    isSelected = true;
-                    Graphics g = gamePanel.getGraphics();
-                    Graphics2D g2d = (Graphics2D) g;
-                    g.setColor(Color.green);
-                    Piece p = board.peek(x, y);
-                    int thickness = 4;
-                    Stroke oldStroke = g2d.getStroke();
-                    g2d.setStroke(new BasicStroke(thickness));
-
-                    ArrayList<Coordinate> validMoves = selectedPiece.getAllValidMoves();
-                    for (Coordinate c : validMoves) {
-                        int i = c.x, j = c.y;
-                        if (board.peek(i, j) != null && board.peek(i, j).getOwner() != selectedPiece.getOwner())
-                            g.setColor(Color.red);
-                        else g.setColor(Color.green);
-                        g.drawRect(i * rectSize + thickness / 2, j * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
-                    }
-                    g.setColor(Color.magenta);
-                    g.drawRect(selectedPiece.getX() * rectSize + thickness / 2, selectedPiece.getY() * rectSize + thickness / 2, rectSize - thickness, rectSize - thickness);
-                    g2d.setStroke(oldStroke);
-                } else {
-                    isSelected = false;
-                    repaint();
-                }
-            }
-        });
-
+        pack();
         setVisible(true);
     }
 
-    private void toggleTurn() {
-        turn = turn == 0 ? 1 : 0;
+    private void deselect() {
+        isSelected = false;
+        selectedPiece = null;
+        gamePanel.setSelectedPiece(null);
+        repaint();
+    }
+
+    private void hoverPiece(Piece p) {
+        gamePanel.setHoveredPiece(p);
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
+    }
+
+    private void selectPiece(Piece p) {
+        selectedPiece = p;
+        isSelected = true;
+        gamePanel.setSelectedPiece(selectedPiece);
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
+    }
+
+    private void toggleTurnPvP() {
+        board.updateChessboard();
+        gamePanel.setHoveredPiece(null);
+        turn = (turn + 1) % 2;
+    }
+
+    private void toggleTurnAvA(PlayerAI p1, PlayerAI p2) {
+        if (p1.getMoveCount() == 0 || p2.getMoveCount() == 0) return;
+        p1.performMove();
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
+        if (p1.getMoveCount() == 0 || p2.getMoveCount() == 0) return;
+        p2.performMove();
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+    }
+
+    private void toggleTurnPvA(PlayerAI player) {
+        board.updateChessboard();
+        gamePanel.setHoveredPiece(null);
+        gamePanel.paintImmediately(gamePanel.getVisibleRect());
+        int oldTurn = turn;
+        turn = player.getPlayerTeam();
+        Thread aiJob = new Thread(player::performMove);
+        aiJob.start();
+        try {
+            aiJob.join();
+        } catch (InterruptedException e) {
+        }
+        turn = oldTurn;
+
     }
 
     // TODO: ogarnac ocb z zaznaczeniami radiobuttonow
@@ -125,46 +198,67 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         JMenuItem pvp = new JMenuItem("Player vs Player");
         submenu.add(pvp);
         pvp.addActionListener(e -> {
+            gameMode = 0;
             board.newGame(rotated);
             turn = 0;
             repaint();
         });
 
-        menuItem = new JMenuItem("Player vs AI");
-        submenu.add(menuItem);
+        JMenuItem pva = new JMenuItem("Player vs AI");
+        submenu.add(pva);
         menu.add(submenu);
+        pva.addActionListener(e -> {
+            gameMode = 1;
+            board.newGame(rotated);
+            turn = 0;
+            repaint();
+        });
 
-        menuItem = new JMenuItem("AI vs AI");
-        submenu.add(menuItem);
+        JMenuItem ava = new JMenuItem("AI vs AI");
+        submenu.add(ava);
         menu.add(submenu);
+        ava.addActionListener(e -> {
+            gameMode = 2;
+            board.newGame(rotated);
+            turn = 0;
+            repaint();
+        });
 
         menuBar.add(menu);
 
         menu = new JMenu("AI Difficulty");
         ButtonGroup group2 = new ButtonGroup();
-        rbMenuItem = new JRadioButtonMenuItem("Easy");
-        group2.add(rbMenuItem);
-        menu.add(rbMenuItem);
+        JRadioButtonMenuItem d1 = new JRadioButtonMenuItem("Easy");
+        group2.add(d1);
+        menu.add(d1);
+        d1.addActionListener(e -> aiDifficulty = 1);
 
-        rbMenuItem = new JRadioButtonMenuItem("Medium");
-        rbMenuItem.setSelected(true);
-        group2.add(rbMenuItem);
-        menu.add(rbMenuItem);
 
-        rbMenuItem = new JRadioButtonMenuItem("Hard");
-        group2.add(rbMenuItem);
-        menu.add(rbMenuItem);
+        JRadioButtonMenuItem d2 = new JRadioButtonMenuItem("Normal");
+        d2.setSelected(true);
+        group2.add(d2);
+        menu.add(d2);
+        d2.addActionListener(e -> aiDifficulty = 2);
 
-        rbMenuItem = new JRadioButtonMenuItem("Very Hard");
-        group2.add(rbMenuItem);
-        menu.add(rbMenuItem);
+
+        JRadioButtonMenuItem d3 = new JRadioButtonMenuItem("Hard");
+        group2.add(d3);
+        menu.add(d3);
+        d3.addActionListener(e -> aiDifficulty = 3);
+
+
+        JRadioButtonMenuItem d4 = new JRadioButtonMenuItem("Very Hard");
+        group2.add(d4);
+        menu.add(d4);
+        d4.addActionListener(e -> aiDifficulty = 4);
+
         menuBar.add(menu);
 
 
         menu = new JMenu("Preferences");
         ButtonGroup group3 = new ButtonGroup();
         JRadioButtonMenuItem white = new JRadioButtonMenuItem("White");
-        rbMenuItem.setSelected(true);
+        white.setSelected(true);
         group3.add(white);
         menu.add(white);
         white.addActionListener(e -> rotated = false);
@@ -176,18 +270,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         menuBar.add(menu);
 
 
-    }
-
-    public void actionPerformed(ActionEvent e) {
-    }
-
-    public void keyPressed(KeyEvent e) {
-    }
-
-    public void keyTyped(KeyEvent e) {
-    }
-
-    public void keyReleased(KeyEvent e) {
     }
 
 }

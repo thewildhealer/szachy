@@ -4,11 +4,21 @@ import si.szachy.Chessboard;
 import si.szachy.Coordinate;
 
 import java.awt.*;
+import java.sql.Array;
 
 public class Bishop extends Piece {
     public Bishop(Chessboard board, Coordinate coord, int owner) {
-        super(board, coord, owner);
+        super(board, coord, owner, 30);
         name = "bishop";
+        evaluation = new double[][]  {
+                { -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0},
+                { -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0},
+                { -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0},
+                { -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0},
+                { -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0},
+                { -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0},
+                { -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0},
+                { -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0}};
         setImage();
     }
 

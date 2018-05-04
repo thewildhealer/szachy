@@ -7,18 +7,22 @@ import java.awt.*;
 import java.util.ArrayList;
 
 abstract public class Piece {
+    private double value;
+    protected double[][] evaluation;
     protected Chessboard board;
     protected Coordinate coord;
     protected int owner;
     protected Image image;
     protected String name;
+    public boolean isAlive = true;
     public boolean didMove = false;
     ArrayList<Coordinate> validMoves;
 
-    public Piece(Chessboard b, Coordinate c, int o) {
+    public Piece(Chessboard b, Coordinate c, int o, int value) {
         this.board = b;
         this.coord = c;
         this.owner = o;
+        this.value = value;
         validMoves = new ArrayList<>();
     }
 
@@ -27,12 +31,28 @@ abstract public class Piece {
     }
 
     public boolean isFieldDangerous(int x, int y) {
+        Coordinate old = coord;
+        this.move(x,y);
+        board.updateChessboard();
         ArrayList<Piece> pieces = board.getPieces();
-        if (name == "king") return false;
         for (Piece p : pieces) {
-            if (p.canReach(x, y))
-                return true;
+            if(p.getClass() != King.class) {
+                if (p.getOwner() != owner && p.canReach(x, y)) {
+                    this.move(old.x, old.y);
+                    board.updateChessboard();
+                    return true;
+                }
+            }
+            else if(p != this && p.owner != owner){
+                if((Math.abs(x - p.getX()) == 1 && Math.abs(y - p.getY()) == 1) || (Math.abs(x - p.getX()) == 0 && Math.abs(y - p.getY()) == 1) || (Math.abs(x - p.getX()) == 1 && Math.abs(y - p.getY()) == 0)) {
+                    this.move(old.x, old.y);
+                    board.updateChessboard();
+                    return true;
+                }
+            }
         }
+        this.move(old.x, old.y);
+        board.updateChessboard();
         return false;
     }
 
@@ -50,6 +70,7 @@ abstract public class Piece {
     }
 
     public void die() {
+        this.isAlive = false;
         board.removePiece(this);
     }
 
@@ -69,15 +90,31 @@ abstract public class Piece {
         this.coord = c;
     }
 
+    public double getValue(){
+        return value + (owner == 1 ? evaluation[board.getHeight() - coord.y - 1][board.getWidth() - coord.x - 1] : evaluation[coord.y][ coord.x]);
+    }
+
     // TODO: do poprawy calosc
     // TODO: dodac bicie
+    // test2
     public boolean wouldKingBeInDanger(Coordinate c) {
         Coordinate oldCoord = getCoord();
-        this.setCoord(c);
-        board.updateChessboard();
-        boolean test = board.kings[owner].isInDanger();
-        this.setCoord(oldCoord);
-        board.updateChessboard();
+        boolean test;
+        if(board.peek(c) != null && board.peek(c).owner != owner){
+            Piece piece = board.peek(c);
+            board.removePiece(piece);
+            board.updateChessboard();
+            test = board.kings[owner].isInDanger();
+            board.addPiece(piece);
+            board.updateChessboard();
+        }
+        else {
+            this.setCoord(c);
+            board.updateChessboard();
+            test = board.kings[owner].isInDanger();
+            this.setCoord(oldCoord);
+            board.updateChessboard();
+        }
         return test;
     }
 
@@ -126,7 +163,7 @@ abstract public class Piece {
     }
 
     public ArrayList<Coordinate> getAllValidMoves() {
-        validMoves.clear();
+        validMoves = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (canReach(i, j)) {

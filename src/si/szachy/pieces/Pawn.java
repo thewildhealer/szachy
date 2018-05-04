@@ -10,9 +10,19 @@ public class Pawn extends Piece {
     }
 
     public Pawn(Chessboard board, Coordinate coord, int owner, boolean rotated) {
-        super(board, coord, owner);
+        super(board, coord, owner, 10);
         name = "pawn";
         setImage();
+        evaluation = new double[][] {
+                {0,  0,  0,  0,  0,  0,  0,  0},
+                {5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0},
+                {1.0, 1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0},
+                {0.5,  0.5, 1.0, 2.5, 2.5, 1.0,  0.5,  0.5},
+                {0,  0,  0, 2.0, 2.0,  0,  0,  0},
+                {0.5, -0.5,-1.0,  0,  0,-1.0, -0.5,  0.5},
+                {0.5, 1.0, 1.0,-2.0,-2.0, 1.0, 1.0,  0.5},
+                {0,  0,  0,  0,  0,  0,  0,  0}};
+
         if (rotated) rotation = -1;
 
     }
