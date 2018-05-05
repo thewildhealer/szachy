@@ -18,7 +18,7 @@ public class MainWindow extends JFrame {
     private JButton zapiszButton;
     private JButton wczytajButton;
     private JTabbedPane tabbedPane1;
-    private int gameMode = 1, aiDifficulty = 2;
+    private int gameMode = 1, aiDifficulty = 3;
     private final int width = 8, height = 8;
     private final int rectSize = 50;
     int turn = 0;
@@ -164,10 +164,6 @@ public class MainWindow extends JFrame {
         if (p1.getMoveCount() == 0 || p2.getMoveCount() == 0) return;
         p2.performMove();
         gamePanel.paintImmediately(gamePanel.getVisibleRect());
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
     }
 
     private void toggleTurnPvA(PlayerAI player) {
