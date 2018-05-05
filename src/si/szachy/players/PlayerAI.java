@@ -14,9 +14,6 @@ import java.util.concurrent.Future;
 
 public class PlayerAI extends Player {
     private final int DEPTH;
-    public ArrayList<tuple<Coordinate, Piece>> moves = new ArrayList<>();
-    public int counter = 0;
-    private int moveCount;
 
     public PlayerAI(Chessboard board, int playerTeam) {
         super(board, playerTeam);
@@ -28,60 +25,37 @@ public class PlayerAI extends Player {
         DEPTH = depth;
     }
 
-    private boolean preventLooping(tuple<Coordinate, Piece> m) {
-        int threshold = 1;
-        int counter = 0;
-        for (tuple<Coordinate, Piece> t : moves) {
-            boolean positionTest = t.key.getX() == m.key.getX() && t.key.getY() == m.key.getY();
-            boolean pieceTest = t.value == m.value;
-            if (positionTest && pieceTest) counter++;
-        }
-        return counter >= threshold;
-    }
-
     public void performMove() {
         updateList();
         move();
     }
-    // TODO: to tez jest malo optymalne ale nie chce mi sie myslec
-    public int getMoveCount() {
-        updateList();
-        int count = 0;
-        for (Piece p : playerPieces)
-            count += p.getAllValidMoves().size();
-        return count;
-    }
 
-    private void move(){
+    private void move() {
         List<triple<Piece, Coordinate, Future<Double>>> moves = new ArrayList<>();
         Piece toMove = null;
         Coordinate destination = null;
         Double bestValue = -999999.0;
-        tuple<Coordinate, Piece> test = new tuple<>(null, null);
-        if (moves.size() > 20) moves.clear();
+
         for (Piece p : playerPieces) {
             List<Coordinate> possibleMoves = p.getAllValidMoves();
-            if(!possibleMoves.isEmpty()) {
+            if (!possibleMoves.isEmpty()) {
                 moves.addAll(findBestMove(p, possibleMoves));
             }
         }
 
-        for(triple<Piece, Coordinate, Future<Double>> move : moves){
-            try{
-                if(move.ext.get() > bestValue){
-                    test.key = move.value;
-                    test.value = move.key;
-                    if (!preventLooping(test)) {
-                        bestValue = move.ext.get();
-                        toMove = move.key;
-                        destination = move.value;
-                    } else bestValue -= 10;
+        for (triple<Piece, Coordinate, Future<Double>> move : moves) {
+            try {
+                if (move.ext.get() > bestValue) {
+                    bestValue = move.ext.get();
+                    toMove = move.key;
+                    destination = move.value;
                 }
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
 
         //To niżej można przerzucić do jakiejś oddzielnej funckji
-        if(toMove != null) {
+        if (toMove != null) {
             if (board.peek(destination) != null && board.peek(destination).getOwner() != toMove.getOwner()) {
                 board.peek(destination).die();
             }
@@ -89,7 +63,7 @@ public class PlayerAI extends Player {
         }
     }
 
-    private List<triple<Piece, Coordinate, Future<Double>>> findBestMove(Piece p, @NotNull List<Coordinate> possibleMoves){
+    private List<triple<Piece, Coordinate, Future<Double>>> findBestMove(Piece p, @NotNull List<Coordinate> possibleMoves) {
         Double bestValue = -999999.0;
         Double actualValue = 0.0;
         Coordinate bestMove = possibleMoves.get(0);
@@ -98,11 +72,11 @@ public class PlayerAI extends Player {
 
         ExecutorService executorService = Executors.newFixedThreadPool(possibleMoves.size());
 
-        for(Coordinate c : possibleMoves){
+        for (Coordinate c : possibleMoves) {
             Piece at = board.peek(c);
             Coordinate prev = p.getCoord();
 
-            if(at != null){
+            if (at != null) {
                 at.die();
             }
 
@@ -111,15 +85,15 @@ public class PlayerAI extends Player {
             board.setField(prev.x, prev.y, null);
 
             Chessboard copyBoard = new Chessboard();
-            for(Piece piece : board.getPieces()){
+            for (Piece piece : board.getPieces()) {
                 copyBoard.addPiece(piece.createCopy(copyBoard));
             }
-            MiniMax miniMax = new MiniMax(PlayerAI.DEPTH, (playerTeam+1)%2, playerTeam, copyBoard);
+            MiniMax miniMax = new MiniMax(DEPTH, (playerTeam + 1) % 2, playerTeam, copyBoard);
             valuesForeachMove.add(new triple<>(p, c, executorService.submit(miniMax)));
             //actualValue = minimax(PlayerAI.DEPTH, (playerTeam+1)%2, -999999.0, 999999.0);
 
             p.setCoord(prev);
-            if(at != null) {
+            if (at != null) {
                 at.isAlive = true;
                 board.addPiece(at);
             }
@@ -130,37 +104,48 @@ public class PlayerAI extends Player {
         return valuesForeachMove;
     }
 
-class tuple<K, V>{
+    // TODO: to tez jest malo optymalne ale nie chce mi sie myslec
+    public int getMoveCount() {
+        updateList();
+        int count = 0;
+        for (Piece p : playerPieces)
+            count += p.getAllValidMoves().size();
+        return count;
+    }
+}
+
+class tuple<K, V> {
     K key;
     V value;
 
-    tuple(K key, V value){
+    tuple(K key, V value) {
         this.key = key;
         this.value = value;
     }
 }
 
-class triple<K, V, E>{
+class triple<K, V, E> {
     K key;
     V value;
     E ext;
-    triple(K key, V value, E ext){
+
+    triple(K key, V value, E ext) {
         this.key = key;
         this.value = value;
         this.ext = ext;
     }
 }
 
-class MiniMax implements Callable<Double>{
+class MiniMax implements Callable<Double> {
 
     private Chessboard board;
     private int depth;
     private int actualPlayer;
     private int owner;
     private static final double alpha = -999999.0;
-    private static final double beta =  999999.0;
+    private static final double beta = 999999.0;
 
-    MiniMax(int depth, int firstPlayer, int owner, Chessboard board){
+    MiniMax(int depth, int firstPlayer, int owner, Chessboard board) {
         this.depth = depth;
         this.board = board;
         actualPlayer = firstPlayer;
@@ -192,11 +177,10 @@ class MiniMax implements Callable<Double>{
                     board.setField(previousCoords.x, previousCoords.y, null);
 
                     if (actualPlayer == owner) {
-                        minmax = Math.max(minmax, evaluateMoves(depth - 1, alpha, beta, (actualPlayer + 1)%2));
+                        minmax = Math.max(minmax, evaluateMoves(depth - 1, alpha, beta, (actualPlayer + 1) % 2));
                         alpha = Math.max(minmax, alpha);
-                    }
-                    else {
-                        minmax = Math.min(minmax, evaluateMoves(depth - 1, alpha, beta, (actualPlayer + 1)%2));
+                    } else {
+                        minmax = Math.min(minmax, evaluateMoves(depth - 1, alpha, beta, (actualPlayer + 1) % 2));
                         beta = Math.min(minmax, beta);
                     }
 
@@ -216,10 +200,10 @@ class MiniMax implements Callable<Double>{
         return minmax;
     }
 
-    private double evaluateBoard(){
+    private double evaluateBoard() {
         double value = 0;
-        for(Piece p: board.getPieces()){
-            if(p.getOwner() == owner)
+        for (Piece p : board.getPieces()) {
+            if (p.getOwner() == owner)
                 value += p.getValue();
             else
                 value -= p.getValue();

@@ -18,7 +18,7 @@ public class MainWindow extends JFrame {
     private JButton zapiszButton;
     private JButton wczytajButton;
     private JTabbedPane tabbedPane1;
-    private int gameMode = 1, aiDifficulty = 3;
+    private int gameMode = 1, aiDifficulty = 2;
     private final int width = 8, height = 8;
     private final int rectSize = 50;
     int turn = 0;
