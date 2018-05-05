@@ -4,9 +4,11 @@ import si.szachy.pieces.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Chessboard {
     private ArrayList<Piece> pieces;
+    private ArrayList<Piece>[] playersPieces;
     private Piece[] board;
     private final int width = 8, height = 8;
     public Piece[] kings = new Piece[2];
@@ -15,8 +17,19 @@ public class Chessboard {
         return pieces;
     }
 
+    public List<Piece> getPieces(int owner) {
+        return new ArrayList<>(playersPieces[owner]);
+    }
+
     public void removePiece(Piece p) {
         pieces.remove(p);
+        playersPieces[p.getOwner()].remove(p);
+    }
+
+    public void wake(Piece p){
+        p.isAlive = true;
+        pieces.add(p);
+        playersPieces[p.getOwner()].add(p);
     }
 
     public int getHeight() {
@@ -28,11 +41,15 @@ public class Chessboard {
     }
 
     public Chessboard() {
+        playersPieces = new ArrayList[2];
+        playersPieces[0] = new ArrayList<>();
+        playersPieces[1] = new ArrayList<>();
         initializeChessboard();
     }
 
     public void addPiece(Piece p) {
         pieces.add(p);
+        playersPieces[p.getOwner()].add(p);
         if (pieces.size() > 1) {
             int i = pieces.size() - 1;
             while (pieces.get(i - 1).getOwner() < pieces.get(i).getOwner()) {

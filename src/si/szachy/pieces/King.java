@@ -22,6 +22,11 @@ public class King extends Piece {
         setImage();
     }
 
+    @Override
+    public King createCopy(Chessboard b){
+        return new King(b, new Coordinate(coord.x, coord.y), owner);
+    }
+
     public boolean leftCastling(){
         if(didMove || isInDanger())
             return false;
