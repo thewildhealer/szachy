@@ -108,15 +108,14 @@ abstract public class Piece {
             board.updateChessboard();
             test = board.kings[owner].isInDanger();
             board.addPiece(piece);
-            board.updateChessboard();
         }
         else {
             this.setCoord(c);
             board.updateChessboard();
             test = board.kings[owner].isInDanger();
             this.setCoord(oldCoord);
-            board.updateChessboard();
         }
+        board.updateChessboard();
         return test;
     }
 
@@ -144,7 +143,6 @@ abstract public class Piece {
         xDir = x - this.getX() == 0 ? 0 : xDir;
         yDir = y - this.getY() > 0 ? 1 : -1;
         yDir = y - this.getY() == 0 ? 0 : yDir;
-
         while (xTemp != x || yTemp != y) {
             xTemp += xDir;
             yTemp += yDir;
@@ -169,9 +167,7 @@ abstract public class Piece {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (canReach(i, j)) {
-                    if (board.kings[owner].isInDanger() == true && wouldKingBeInDanger(new Coordinate(i, j)) == false)
-                        validMoves.add(new Coordinate(i, j));
-                    else if (board.kings[owner].isInDanger() == false)
+                    if (wouldKingBeInDanger(new Coordinate(i, j)) == false)
                         validMoves.add(new Coordinate(i, j));
                 }
             }

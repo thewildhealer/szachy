@@ -3,6 +3,7 @@ package si.szachy;
 import si.szachy.pieces.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Chessboard {
         playersPieces[p.getOwner()].remove(p);
     }
 
-    public void wake(Piece p){
+    public void wake(Piece p) {
         p.isAlive = true;
         pieces.add(p);
         playersPieces[p.getOwner()].add(p);
@@ -58,33 +59,35 @@ public class Chessboard {
                 else break;
             }
         }
-        if (p.getName().equals("king"))
+        if (p.getClass() == King.class)
             kings[p.getOwner()] = p;
 
     }
+
     public void setField(int x, int y, Piece p) {
-        board[x + y * width] = p;
+        board[x * width + y] = p;
     }
 
     public void updateChessboard() {
-        for (int i = width * height - 1; i >= 0; i--)
-            board[i] = null;
-        for (int i = pieces.size() - 1; i >= 0; i--)
-            setField(pieces.get(i).getCoord().getX(), pieces.get(i).getCoord().getY(), pieces.get(i));
+        Arrays.fill(board, null);
+        for (Piece p : pieces) {
+            setField(p.getX(), p.getY(), p);
+        }
     }
 
     private void initializeChessboard() {
         pieces = new ArrayList<>();
         board = new Piece[width * height];
-        for (int i = 0; i < width* height; i++)
+        for (int i = 0; i < width * height; i++)
             board[i] = null;
     }
 
     public Piece peek(Coordinate c) {
         return peek(c.x, c.y);
     }
+
     public Piece peek(int x, int y) {
-        return board[x + y * width];
+        return board[x * width + y];
     }
 
     public void newGame(boolean rotated) {
