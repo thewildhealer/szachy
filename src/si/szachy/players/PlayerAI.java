@@ -7,6 +7,7 @@ import si.szachy.pieces.Piece;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +15,7 @@ import java.util.concurrent.Future;
 
 public class PlayerAI extends Player {
     private final int DEPTH;
+    private ArrayList<tuple<Piece, Coordinate>> moveStack = new ArrayList<>();
 
     public PlayerAI(Chessboard board, int playerTeam) {
         super(board, playerTeam);
@@ -30,11 +32,25 @@ public class PlayerAI extends Player {
         move();
     }
 
+    private boolean preventLooping(tuple<Piece, Coordinate> m) {
+        int threshold = 1;
+        int counter = 0;
+        for (tuple<Piece, Coordinate> t : moveStack) {
+            boolean positionTest = t.value.getX() == m.value.getX() && t.value.getY() == m.value.getY();
+            boolean pieceTest = t.key == m.key;
+            if (positionTest && pieceTest) counter++;
+        }
+        return counter >= threshold;
+    }
+
     private void move() {
         List<triple<Piece, Coordinate, Future<Double>>> moves = new ArrayList<>();
+        List<tuple<Piece, Coordinate>> bestMoves = new ArrayList<>();
         Piece toMove = null;
         Coordinate destination = null;
-        Double bestValue = -999999.0;
+        Double bestValue = -99999999.0;
+        tuple<Piece, Coordinate> test = new tuple<>(null, null);
+        if (moveStack.size() > 20) moveStack.clear();
 
         for (Piece p : playerPieces) {
             List<Coordinate> possibleMoves = p.getAllValidMoves();
@@ -45,17 +61,31 @@ public class PlayerAI extends Player {
 
         for (triple<Piece, Coordinate, Future<Double>> move : moves) {
             try {
-                if (move.ext.get() > bestValue) {
-                    bestValue = move.ext.get();
-                    toMove = move.key;
-                    destination = move.value;
+                if (move.ext.get() >= bestValue) {
+                    test.key = move.key;
+                    test.value = move.value;
+                    if (!preventLooping(test)) {
+                        if (move.ext.get() > bestValue) {
+                            bestMoves.clear();
+                            bestValue = move.ext.get();
+                        }
+                        toMove = move.key;
+                        destination = move.value;
+                        bestMoves.add(new tuple<>(toMove, destination));
+                    } else bestValue -= 100;
                 }
             } catch (Exception e) {
             }
         }
-
         //To niżej można przerzucić do jakiejś oddzielnej funckji
         if (toMove != null) {
+            Random generator = new Random();
+            int choice = 0;
+            if (bestMoves.size() > 1)
+                generator.nextInt(bestMoves.size() - 1);
+            toMove = bestMoves.get(choice).key;
+            destination = bestMoves.get(choice).value;
+            moveStack.add(bestMoves.get(choice));
             if (board.peek(destination) != null && board.peek(destination).getOwner() != toMove.getOwner()) {
                 board.peek(destination).die();
             }

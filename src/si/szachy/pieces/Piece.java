@@ -93,7 +93,10 @@ abstract public class Piece {
     }
 
     public double getValue(){
-        return value + (owner == 1 ? evaluation[board.getHeight() - coord.y - 1][board.getWidth() - coord.x - 1] : evaluation[coord.y][ coord.x]);
+        int blackX = board.getWidth() - coord.x - 1, blackY = board.getHeight() - coord.y - 1;
+        int whiteX = coord.x, whiteY = coord.y;
+        double eval = (owner == 1 ? evaluation[blackY][blackX] : evaluation[whiteY][whiteX]);
+        return value + eval;
     }
 
     // TODO: do poprawy calosc

@@ -18,7 +18,7 @@ public class MainWindow extends JFrame {
     private JButton zapiszButton;
     private JButton wczytajButton;
     private JTabbedPane tabbedPane1;
-    private int gameMode = 1, aiDifficulty = 2;
+    private int gameMode = 1, aiDifficulty = 4;
     private final int width = 8, height = 8;
     private final int rectSize = 50;
     int turn = 0;
@@ -35,8 +35,8 @@ public class MainWindow extends JFrame {
         board = new Chessboard();
         board.newGame(rotated);
         //     PlayerHuman human = new PlayerHuman(board, 0);
-        PlayerAI ai = new PlayerAI(board, aiDifficulty, 1);
-        PlayerAI ai2 = new PlayerAI(board, aiDifficulty, 0);
+        PlayerAI ai = new PlayerAI(board, 2, 1);
+        PlayerAI ai2 = new PlayerAI(board, 3, 0);
 
         initializeWindow();
         gamePanel.addMouseMotionListener(new MouseAdapter() {
@@ -46,7 +46,8 @@ public class MainWindow extends JFrame {
                 if (selectedPiece == null && isSelected == false) {
                     int x = (e.getX() / rectSize);
                     int y = (e.getY() / rectSize);
-                    if (board.peek(x, y) != null && board.peek(x, y).getOwner() == turn) { // TODO: ogarnac ten syf z teamami
+                    boolean test = gameMode == 2;
+                    if (board.peek(x, y) != null && (test || (board.peek(x, y).getOwner() == turn))) { // TODO: ogarnac ten syf z teamami
                         hoverPiece(board.peek(x, y));
                     } else hoverPiece(null);
                 }
@@ -163,7 +164,11 @@ public class MainWindow extends JFrame {
         gamePanel.paintImmediately(gamePanel.getVisibleRect());
         if (p1.getMoveCount() == 0 || p2.getMoveCount() == 0) return;
         p2.performMove();
+        board.updateChessboard();
         gamePanel.paintImmediately(gamePanel.getVisibleRect());
+        //   try{
+        //  Thread.sleep(1000);
+        //   } catch (InterruptedException e){}
     }
 
     private void toggleTurnPvA(PlayerAI player) {
